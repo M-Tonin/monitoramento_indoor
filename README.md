@@ -1,29 +1,30 @@
 # Monitoramento Indoor 
 
 * **Local**: Sala do IBTI
-* **Descrição**: Com uso de dois dispositivos, monitorar a temperatura e a luminosidade em dois pontos diferentes. Apresentar os dados em uma aplicação mobile. O dispositivo deve ser capaz de acionar o buzzer se for solicitado.
+* **Descrição**: Com uso de dois dispositivos, monitorar a temperatura e a luminosidade em dois pontos diferentes, apresentando os dados em uma aplicação mobile. O dispositivo também deve ser capaz de acionar o buzzer se for solicitado.
 
-Para cada parte do projeto foi criado uma pasta que deve ser utilizada para o desenvolvimento da solução. **Não devem ser criados novos repositórios**.
+Para cada parte do projeto, foi criado uma pasta que deve ser utilizada para o desenvolvimento da solução. **Não devem ser criados novos repositórios**.
 
-* Cada parte do projeto tem suas restrições.
+* Cada parte do projeto tem suas restrições, a serem esclarecidas com o solicitante.
 
-* Algumas coisas podem ser definidas pelas equipes (mas devem ser comunicadas e estão sujeitas a aprovação).
+* Algumas delas podem ser definidas pelas equipes (mas devem ser comunicadas e estão sujeitas a aprovação).
 
 ![Test Image 3](/SalaCompleta.png)
 
 * **Organização** deve ser feita com Trello.
 * **Metodologia** Scrum.
 * **Equipes**:
-  * Device - 2 pessoas
+  * Device + Comunicação - 2 pessoas
   * Servidor - 3 pessoas
   * Aplicação - 2 pessoas
-  * Scrum Master - 1 pessoa não exclusivo, elegível.
+  * Scrum Master - 1 pessoa não exclusivo, elegível pela equipe.
   
 * Scrum Master deve definir como se dará as reuniões da equipe, bem como o planejamento.
-* Reuniões com os solicitantes
+* Datas:
   * Primeira entrega: 19/06/2020
   * Entrega final:  24/06/2020
-* Cada equipe deve documentar o projeto e apresentar tanto para o resto da equipe bem como para os clientes.
+  * Reuniões com os clientes podem ser marcadas pelas equipes para esclarecimentos e dúvidas
+* Cada equipe deve documentar o projeto e apresentar para as outras equipes bem como para os clientes.
  * Primeiros passos:
   * Após a divisão, cada equipe pode (deve) conversar individualmente com os clientes para solicitar mais informações, sanar dúvidas e et cetera.
   * Organização do trello.
