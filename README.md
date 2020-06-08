@@ -9,7 +9,7 @@ Para cada parte do projeto, foi criado uma pasta que deve ser utilizada para o d
 
 * Algumas delas podem ser definidas pelas equipes (mas devem ser comunicadas e estão sujeitas a aprovação).
 
-![Test Image 3](/Imagens/SalaCompleta.png = 250 px)
+<img src="/Imagens/SalaCompleta.png" width="400" height="500">
 
 * **Organização** deve ser feita com Trello.
 * **Metodologia** Scrum.
