@@ -1,7 +1,7 @@
 ## Device
 
 #### Responsáveis:
-  * quem ? quem ?
+  * Gabriel e Rodrigo
 ---------------------------------
 ### Overview
 --------------------------------
@@ -13,7 +13,7 @@
 ### Dispositivo
 ---------------------------------
 * Arduino
-* SX
+* SX1276
 * Sensores 
   * Temperatura
   * Luminosidade
@@ -25,6 +25,6 @@
 ---------------------------------
 * 1 dispositivo para cada tecnologia e vice e versa
   * LoRa;
-  * WiFi
+  * WiFi;
  
  
