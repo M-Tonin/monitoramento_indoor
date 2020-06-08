@@ -1,7 +1,7 @@
 ## Aplicação
 
 ### Responsáveis:
-  * quem ? quem ?
+  * Arley e Silvio
 ---------------------------------
 * Mobile
 
