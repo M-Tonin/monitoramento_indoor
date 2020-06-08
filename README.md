@@ -25,6 +25,7 @@ Para cada parte do projeto foi criado uma pasta que deve ser utilizada para o de
   * Entrega final:  24/06/2020
 * Cada equipe deve documentar o projeto e apresentar tanto para o resto da equipe bem como para os clientes.
  * Primeiros passos:
+  * Após a divisão, cada equipe pode (deve) conversar individualmente com os clientes para solicitar mais informações, sanar dúvidas e et cetera.
   * Organização do trello.
   * Atualização do gitignore (na raiz do projeto) a fim de não gerar arquivos inúteis.
   * Atualização do readme dentro da pasta correspondente. 
@@ -33,4 +34,13 @@ Para cada parte do projeto foi criado uma pasta que deve ser utilizada para o de
 
 Demais questionamentos devem ser tratados com solicitante.
 
+**Não deve ser feitos commits direto na master, deve ser feito por Pull Request**
+
+**Recomenda-se que cada equipe crie pelo menos uma branch**
+
+**Recomenda-se que antes de mais nada desenhe o fluxo da solução**
+
+**Deve-se documentar os requisitos**
+
 **Novas solicitações podem surgir durante o projeto**
+
