@@ -1,8 +1,8 @@
 ## Servidor
 
 ### Responsáveis:
-  * quem ? quem ?
-
----------------------------------
-* Python
-* Banco de dados (SQL / Postgree)
+  * Fernando, Renato e Saulo.
+  
+### Recursos utilizados:
+* Servidor (MQTT & Python);
+* Banco de dados (MySQL).
