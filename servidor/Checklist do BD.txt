@@ -1,0 +1,26 @@
+CHECKLIST
+
+-> O que é o limiar de temperatura? É calculado, é informado,
+é pré-definido?
+
+-> O que é o status de luminosidade? É um range? Quantos status existem? 
+
+-> Como os dados são informados para o banco? O usuário informa?
+Ou o próprio dispositvo informa em frequência fixa? Em qual frequência?
+
+-> Quais os dados são informados pelo usuário e pelo dispositivo? Temperatura, luminosidade,
+mac address, etc?
+
+---
+
+Luminosidade:
+- Status: aceso / apagado
+- Intensidade: valor numérico
+
+Temperatura:
+- Valor numérico com 3 dígitos no total, 1 casa decimal
+- Vai ser enviado sem decimais e convertido no banco. Ex.: recebe xyz -> formata para xy,z
+
+Dispositivo:
+- MAC Address: hex de 4 dígitos
+- Tipo de comunicação: LoRa / WiFi
