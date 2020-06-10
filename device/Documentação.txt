@@ -1,3 +1,0 @@
-Neste arquivo será documentado o fluxo do projeto com seus problemas, soluções e anotações
-necessárias.
-
