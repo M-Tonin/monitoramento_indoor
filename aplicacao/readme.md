@@ -3,7 +3,7 @@
 ### Responsáveis:
   * Arley e Silvio
 ---------------------------------
-* Mobile
+* Mobile teste
 
   * Gráfico do dia
   * Droplist
