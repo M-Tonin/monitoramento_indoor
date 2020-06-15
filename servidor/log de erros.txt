@@ -1,0 +1,4 @@
+TTN Server
+	downlink callback não está sendo catalogado
+	precisa do dispositivo pronto?
+	- downlink callback funciona dentro do próprio servidor, mas não da ttn pro servidor
