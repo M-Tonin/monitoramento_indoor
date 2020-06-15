@@ -4,14 +4,6 @@ import ttn
 appId = 'monitoramento-indoor'
 accessKey = 'ttn-account-v2.L0jlR9qu-OzefvHzRzBq6SjaA6jPx8gBPfdo-6aLg4c'
 
-mysqlConfig = {
-  'user': 'renato',
-  'password': 'senha',
-  'host': '192.168.34.1',
-  'database': 'bla',
-  'raise_on_warnings': True
-}
-
 handler = ttn.HandlerClient (appId, accessKey)
 mqttClient = handler.data ()
 appClient = handler.application ()
