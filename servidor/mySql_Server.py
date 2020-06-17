@@ -5,6 +5,8 @@
 import mysql.connector as mysql
 #Importando os códigos de erro da biblioteca para tratamento
 from mysql.connector import errorcode
+#Importando a biblioteca de tratamento de objetos
+import objTreatment_Server as objT
 
 #Esta função inicializa a conexão com o banco de dados
 #   Parâmetros: conn, hst, usr, passwrd.
@@ -32,7 +34,7 @@ def dbStart(hst,usr,passwrd,db):
             return None
 
             
-#Esta função insere dados no banco de dados
+#Esta função insere dados no banco de dados com base em comando sql
 #   Parâmetros: cursor, sqlCmd.
 #   Retorno: Retorna 'True' se a inserção for bem sucedida. 'False' se houve falha na inserção.
 def dbInsert (cursor,sqlCmd):
@@ -51,6 +53,29 @@ def dbInsert (cursor,sqlCmd):
         else:
             raise Exception(err)
             return False
+
+            
+#Esta função insere dados no banco de dados com base em objeto
+#   Parâmetros: cursor, obj.
+#   Retorno: Retorna 'True' se a inserção for bem sucedida. 'False' se houve falha na inserção.
+def dbInsertObj (cursor,obj):
+    try:
+        sqlCmd = 'INSERT INTO '+objT.getObjName(obj)+'('+objT.getVarsNames(obj)+') VALUES ('+objT.getVarsValues(obj)+');' 
+        print(sqlCmd)
+        cursor.execute(sqlCmd)
+        return True
+    except mysql.Error as err:
+        if err.errno == errorcode.ER_DUP_ENTRY:
+            #Caso tente inserir algum dado duplicado em uma coluna UNIQUE do banco 
+            raise Exception('\nId duplicado')
+            return False
+        elif err.errno == errorcode.ER_BAD_FIELD_ERROR:
+            #Caso tente inserir algum dado nulo em uma coluna NOT NULL do banco
+            raise Exception(err)
+            return False
+        else:
+            raise Exception(err)
+            return False
             
             
 #Esta função faz o select no banco de dados
@@ -63,6 +88,3 @@ def dbSelect (cursor,query):
     except mysql.Error as err:
         raise Exception(err)
         return None
-
-
-
