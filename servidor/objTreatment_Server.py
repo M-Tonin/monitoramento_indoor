@@ -34,11 +34,11 @@ def getVarsNames (obj):
 def getVarsValues(obj):
     varDict = vars(obj)
     varsNameList = list(vars(obj))
-    i = 0;
+    i = 0
     varStr = ''
     varValueList = []
     for varName in varsNameList:
-        varValueList.append(varDict[varName]);
+        varValueList.append(varDict[varName])
     for varValue in varValueList:
         if i == 0:
             if(type(varValueList[i]) == str and str(varValue) not in dbReservedWords):
