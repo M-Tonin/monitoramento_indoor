@@ -4,7 +4,7 @@ import mySql_Server as mysqlServer
 
 appId = 'monitoramento-indoor'
 accessKey = 'ttn-account-v2.L0jlR9qu-OzefvHzRzBq6SjaA6jPx8gBPfdo-6aLg4c'
-devId = '26011BC0'
+devId = 'dispositivo1'
 
 mysqlConnection = None
 mysqlCursor = None
@@ -69,7 +69,10 @@ while cmd != 'quit':
   cmd = input ()
 
   if cmd == 'send':
-    mqttClient.send (devId, '01', 1, False, 'replace')
+    print ('Enter payload for downlink: ')
+    downlink = input ()
+    downlink = codecs.encode (codecs.decode (downlink, 'hex'), 'base64').decode ()
+    mqttClient.send (devId, downlink, 1, False, 'replace')
 
 print ('Closing program...')
 mqttClient.close ()
