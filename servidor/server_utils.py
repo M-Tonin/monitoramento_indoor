@@ -2,11 +2,12 @@ import mySql_Server as mysqls
 import ttn
 
 mysqlConn = None
+LIGHTING_THRESHOLD = 200
 
 # generate mysql object and insert into mysql database
 def callInsert (d, t, l):
   s = 0
-  if l > 200:
+  if l > LIGHTING_THRESHOLD:
     s = 1
 
   occ = mysqls.tb_ocorrencia (d, float (t), int (l), s)

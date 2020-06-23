@@ -33,7 +33,6 @@ def dbStart(hst, usr, passwrd, db):
             print (err)
             return None
 
-            
 #Esta função insere dados no banco de dados com base em comando sql
 #   Parâmetros: cursor, sqlCmd.
 #   Retorno: Retorna 'True' se a inserção for bem sucedida. 'False' se houve falha na inserção.
@@ -54,7 +53,6 @@ def dbInsert (cursor, sqlCmd):
             print (err)
             return False
 
-            
 #Esta função insere dados no banco de dados com base em objeto
 #   Parâmetros: cursor, obj.
 #   Retorno: Retorna 'True' se a inserção for bem sucedida. 'False' se houve falha na inserção.
@@ -76,8 +74,7 @@ def dbInsertObj (cursor, obj):
         else:
             print (err)
             return False
-            
-            
+
 #Esta função faz o select no banco de dados
 #   Parâmetros: cursor, query
 #   Retorno: returna uma 'list' com resultado da query. Retorne 'None' caso haja alguma falha.
@@ -88,3 +85,12 @@ def dbSelect (cursor, query):
     except mysql.Error as err:
         print (err)
         return None
+
+class tb_ocorrencia:
+  def __init__(self, idD, tmp, lmi, stLu):
+    self.id_dispositivo = idD
+    self.vl_temperatura = tmp 
+    self.vl_luminosidade = lmi
+    self.dt_ocorrencia = 'CURRENT_DATE'
+    self.hr_ocorrencia = 'CURRENT_TIME'
+    self.st_luminosidade = stLu
