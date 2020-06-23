@@ -8,6 +8,7 @@ const { width, height } = Dimensions.get('window');
 
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { FlatList } from 'react-native-gesture-handler';
+import { LineChart } from 'react-native-chart-kit';
 import axios from 'axios';
 
 //Cores do IBTI:
@@ -19,7 +20,13 @@ import axios from 'axios';
 export default function Home() {
     //Inicialização das variáveis
     const [expanded, setExpanded] = useState(false); //Controla o estado dos detalhes (expanded, collapsed)
-    const [frequencyCounter, setFrequencyCounter] = useState(0);
+    const [frequencyCounterC, setFrequencyCounterC] = useState(0);
+    const [frequencyCounterD, setFrequencyCounterD] = useState(0);
+    const [frequencyCounterU, setFrequencyCounterU] = useState(0);
+    const [graphData, setGraphData] = useState([])
+    const [dados, setDados] = useState()
+    const [URD1, setURD1] = useState([])
+    const [URD2, setURD2] = useState([])
     const [devices, setDevices] = useState([
         { key: 1, name: 'Dispositivo 1', expanded: false, lightState: true },
         { key: 2, name: 'Dispositivo 2', expanded: false, lightState: false }
@@ -41,10 +48,16 @@ export default function Home() {
         devices.forEach((device) => { //Laço para percorrer todos os dispositivos existentes
             if (device.key === searchKey) { //Se a a chave recebida for igual a lida atualmente, inverte o estado do dispositivo atual
                 expand = !device.expanded;
+                if (device.expanded === false) {
+                    getFrequency(1)
+                    //loadDataForGraphic()
+                    //alert(JSON.stringify(graphData))
+                }
             }
             else {//Se a chave não for igual, o estado deve ser false, para que apenas 1 dropdown esteja aberto por vez
                 expand = false;
             }
+
             let list = { //Cada dispositivo será alterado como necessitar
                 key: device.key,
                 name: device.name,
@@ -61,39 +74,162 @@ export default function Home() {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         //let expand = !expanded; //Pegamos o oposto do valor atual de expanded, para abrir se estiver fechada, e fechar se estiver aberta
         //setExpanded(expand); //Passamos o novo valor para a expanded
-        setFrequencyCounter(0);
+        setFrequencyCounterC(0);
+        setFrequencyCounterD(0);
+        setFrequencyCounterU(0);
     }
 
     //Função que aumenta a frequência
-    function moreFrequency() {
-        if ((frequencyCounter + 1) < 60) {
-            let freq = frequencyCounter + 1;
-            setFrequencyCounter(freq);
+    function moreFrequency(btnCaller) {
+        if (btnCaller === 1) {
+            if ((frequencyCounterC + 1) < 10) {
+                let freq = frequencyCounterC + 1;
+                setFrequencyCounterC(freq);
+            }
         }
+        else {
+            if (btnCaller === 2) {
+                if ((frequencyCounterD + 1) < 10) {
+                    let freq = frequencyCounterD + 1;
+                    setFrequencyCounterD(freq);
+                }
+            }
+            else {
+                if (btnCaller === 3) {
+                    if ((frequencyCounterU + 1) < 10) {
+                        let freq = frequencyCounterU + 1;
+                        setFrequencyCounterU(freq);
+                    }
+                }
+            }
+        }
+
     }
 
     //Função que diminui a frequência
-    function lessFrequency() {
-        if ((frequencyCounter - 1) > -1) {
-            let freq = frequencyCounter - 1;
-            setFrequencyCounter(freq);
+    function lessFrequency(btnLess) {
+        if (btnLess === 1) {
+            if ((frequencyCounterC - 1) > -1) {
+                let freq = frequencyCounterC - 1;
+                setFrequencyCounterC(freq);
+            }
         }
+        else {
+            if (btnLess === 2) {
+                if ((frequencyCounterD - 1) > -1) {
+                    let freq = frequencyCounterD - 1;
+                    setFrequencyCounterD(freq);
+                }
+            }
+            else {
+                if (btnLess === 3) {
+                    if ((frequencyCounterU - 1) > -1) {
+                        let freq = frequencyCounterU - 1;
+                        setFrequencyCounterU(freq);
+                    }
+                }
+            }
+
+        }
+
     }
 
+
     //Função que envia comando para atualização da frequência de envio dos dados pelo dispositivo
-    function updateFrequency(deviceName, newFrequency){
-        const teste = {
-            nome: deviceName,
-            data: newFrequency,
-            hora: new Date()
+    function updateFrequency(keyDevice) {
+        const newFrequency = frequencyCounterC.toString() + frequencyCounterD.toString() + frequencyCounterU.toString()//junta os valores de centena, dezena e unidade, formando o valor inteiro da nova frequência.
+        const params = {//JSON com os dados para a atualização da frequência
+            key: keyDevice,//indica qual dispositivo será atualizado
+            frequencia: parseInt(newFrequency)//nova frequência do dispositivo
+
         }
-        axios.post("http://192.168.2.113:5000/uplink", teste).then(response => {
-            if(response.data.status){
+        //requisição de atualização
+        axios.post("http://192.168.2.113:5000/updateFreq", params).then(response => {
+            if (response.data.success) {
                 alert(JSON.stringify(response));
             }
-        }).catch(error => {alert(JSON.stringify(error))});
-        alert("A frequência do " +  teste.nome + " foi alterada para " + teste.data + "!" + teste.hora);
+        }).catch(error => { alert(JSON.stringify(error)) });
+        //alert("A frequência do " +  teste.nome + " foi alterada para " + teste.data + "!" + teste.hora);
+
     }
+    //função para obter o valor atual da frequência do dispositivo informado
+    function getFrequency(key) {
+        const params = {//JSON com os dados para consulta
+            keyDevice: key
+        }
+        //requisição para obter o valor da frequência
+        axios.post("http://192.168.2.113:5000/frequency", params).then(response => {
+            let ar = response.data.frequenciaDoDispositivo.toString().split("");//recebe o valor da frequência atual divida casa por casa (CDU)
+            //se o valor da frequência for composto por três casas, salva os valores na suas respectivas variáveis
+            if (ar.length === 3) {
+                setFrequencyCounterC(ar[0]);
+                setFrequencyCounterD(ar[1]);
+                setFrequencyCounterU(ar[2]);
+            }
+            else {//se for composto por duas casas, define a centena como 0 e salva a dezena e a unidade nas respectivas variáveis.
+                if (ar.length === 2) {
+                    setFrequencyCounterC(0)
+                    setFrequencyCounterD(ar[0]);
+                    setFrequencyCounterU(ar[1]);
+                }
+                else {//se for composto por uma casa, define a centena e a dezena como 0 e a salva a unidade na sua variável.
+                    if (ar.length === 1) {
+                        setFrequencyCounterC(0)
+                        setFrequencyCounterD(0)
+                        setFrequencyCounterU(ar[0])
+                    }
+                    else {
+                        alert("Opção não cadastrada!")
+                    }
+                }
+            }
+        }).catch(error => { alert(JSON.stringify(error)) })
+    }
+    function loadDataForGraphic() {
+        axios.get("http://192.168.2.113:5000/dados_graph")
+            .then(response => {
+                setGraphData(response.data)
+                //]alert(JSON.stringify(graphData))
+            })
+            .catch(error => {
+                alert(JSON.stringify(error))
+            })
+        const { ultimoRegDips1 } = graphData
+        const { ultimoRegDips2 } = graphData
+        setURD1(ultimoRegDips1)
+        setURD2(ultimoRegDips2)
+
+        const { ocorrencias: dataForGraphic } = graphData
+        let hr_ocorrencia = [], dt_ocorrencia = [], vl_temperatura = []
+        dataForGraphic.map((num) => {
+            hr_ocorrencia.push(num.hr_ocorrencia + ' ' + num.dt_ocorrencia)
+            vl_temperatura.push(num.vl_temperatura)
+        })
+        let graphicData = {
+            labels: hr_ocorrencia,
+            datasets: [{
+                data: vl_temperatura,
+                strokeWidth: 2
+            }]
+        }
+
+        setDados(graphData)
+    }
+
+    const teste = {
+        labels: [
+            "01:00",
+            "02:00",
+            "03:00"
+        ],
+        datasets: [
+            {
+                data: [0, 1, 2],
+                strokeWidth: 2
+            }
+        ]
+    }
+
 
     return (
         // Container de toda a aplicação
@@ -137,7 +273,7 @@ export default function Home() {
                                 {/* Fim do botão que abre e fecha os detalhes do dispositivo */}
 
                                 {/* Container para exibir os detalhes do dispositivo quando o usuário clicar sobre seu botão */}
-                                <View style={{ height: item.expanded ? 450 : 0, width: 0.95 * width, overflow: "hidden", marginBottom: 15, backgroundColor: '#FFF' }}>
+                                <View style={{ height: item.expanded ? 750 : 0, width: 0.95 * width, overflow: "hidden", marginBottom: 15, backgroundColor: '#FFF' }}>
                                     <Text style={{ paddingLeft: 15, paddingTop: 15 }}>Nome do dispositivo: <Text style={{ fontWeight: "bold" }}>{item.name}</Text></Text>
                                     <Text style={{ paddingLeft: 15 }}>Local: <Text style={{ fontWeight: "bold" }}>Sala de reunião</Text> </Text>
                                     <Text style={{ paddingLeft: 15 }}>Última Temperatura Registarda: <Text style={{ fontWeight: "bold" }}>20°</Text></Text>
@@ -154,39 +290,109 @@ export default function Home() {
                                         />
                                     </View>
                                     {/* Gráfico para exemplificar design */}
-                                    <View style={{ width: '90%', height: 220, marginLeft: '5%', alignItems: "center", justifyContent: "center", borderWidth: 1 }}>
-                                        <Image style={{ width: 300, height: 200 }} source={require('../../assets/images/lineGraphic.png')}></Image>
+                                    <View style={{ width: '90%', height: 400, marginLeft: '5%', alignItems: "center", justifyContent: "center", borderWidth: 0.2, borderColor: '#777' }}>
+                                        <ScrollView horizontal={true} style={{ height: 220 }} contentContainerStyle={{ borderWidth: 1 }}>
+                                            {teste ?
+                                                (
+                                                    <>
+                                                        <LineChart
+                                                            fromZero
+                                                            yAxisSuffix="°C"
+                                                            verticalLabelRotation={90}
+                                                            data={teste}
+                                                            width={Dimensions.get("window").width + (3 * 20)}
+                                                            height={400}
+                                                            chartConfig={{
+                                                                backgroundColor: '#1CC910',
+                                                                backgroundGradientFrom: '#EFF3FF',
+                                                                backgroundGradientTo: '#EFEFEF',
+                                                                color: (opacity = 1) => `rgba(0,0,0, ${opacity})`,
+                                                                style: { borderRadius: 16 },
+
+                                                            }}
+                                                            style={{ marginVertical: 8, borderRadius: 16 }}
+                                                        >
+
+
+                                                        </LineChart>
+                                                    </>
+                                                )
+                                                :
+                                                (
+                                                    <>
+                                                        <Text>Não há dados registrados</Text>
+                                                    </>
+
+
+                                                )
+                                            }
+                                        </ScrollView>
                                     </View>
 
                                     {/* Container para a área dos botões */}
-                                    <View style={{ flexDirection: "row", height: 75, width: '100%', marginTop: 15, justifyContent: "flex-end" }}>
-                                        {/* Botão para salvar a nova frequência */}
-                                        <TouchableOpacity onPress={() => {updateFrequency(item.name, frequencyCounter)}}>
-                                            {/* Deixa o botão do Buzzer em Gradient */}
-                                            <LinearGradient
-                                                start={{ x: 0, y: 0 }}
-                                                end={{ x: 1, y: 0 }}
-                                                colors={['#03A63C', '#00AB98']}
-                                                style={{ width: 50, height: 50, alignItems: "center", justifyContent: "center", marginRight: 15, padding: 10, backgroundColor: '#0B7534', borderRadius: 5 }}>
-                                                {/* Ícone de buzina para simbolizar comando de mandar o buzzer apitar */}
-                                                <Icon name="save" color={'#FFF'} size={25}></Icon>
-                                            </LinearGradient>
-                                        </TouchableOpacity>
+                                    <View style={{ width: '100%', flexDirection: 'row' }}>
+                                        <View style={{ flexDirection: "row", height: 160, width: '50%', marginTop: 15, justifyContent: "flex-end", alignItems: 'center' }}>
 
-                                        {/* Botões de + e - para aumentar ou diminuir a frequência de envio das informações pelo dispositivo */}
-                                        <View style={{ flexDirection: "row", marginRight: 15 }}>
-                                            {/* Botão de diminuir frequência */}
-                                            <TouchableOpacity style={{ width: 50, height: 50, alignItems: "center", justifyContent: "center", padding: 5, borderWidth: 1, borderRightWidth: 0, borderColor: '#D9534F', backgroundColor: '#D9534F' }} onPress={() => { lessFrequency() }}>
-                                                <Icon name="minus" color={'#FFF'} size={15}></Icon>
+                                            {/* Botão para salvar a nova frequência */}
+                                            <TouchableOpacity onPress={() => { updateFrequency(item.key) }}>
+                                                {/* Deixa o botão de salvar em Gradient */}
+                                                <LinearGradient
+                                                    start={{ x: 0, y: 0 }}
+                                                    end={{ x: 1, y: 0 }}
+                                                    colors={['#03A63C', '#00AB98']}
+                                                    style={{ width: 50, height: 50, alignItems: "center", justifyContent: "center", marginRight: 15, padding: 10, backgroundColor: '#0B7534', borderRadius: 5 }}>
+                                                    {/* Ícone de buzina para simbolizar comando de mandar o buzzer apitar */}
+                                                    <Icon name="save" color={'#FFF'} size={25}></Icon>
+                                                </LinearGradient>
                                             </TouchableOpacity>
+                                        </View>
 
-                                            {/* Exibe o valor atual da frequência de envio */}
-                                            <Text style={{ fontSize: 15, textAlign: "center", textAlignVertical: "center", width: 50, height: 50, borderWidth: 1, borderColor: '#999' }}>{frequencyCounter}</Text>
+                                        <View style={{ flexDirection: "row", height: 160, width: '50%', marginTop: 15, justifyContent: "flex-end", alignItems: 'center', justifyContent: 'center' }}>
+                                            {/* Botões de + e - para aumentar ou diminuir a frequência de envio das informações pelo dispositivo */}
+                                            <View style={{ flexDirection: "column" }}>
+                                                {/* Botão de aumentar frequência */}
+                                                <TouchableOpacity style={{ width: 50, height: 50, alignItems: "center", justifyContent: "center", padding: 5, borderWidth: 1, borderLeftWidth: 0, borderColor: '#0B7534', backgroundColor: '#0B7534' }} onPress={() => { moreFrequency(1) }}>
+                                                    <Icon name="plus" color={'#FFF'} size={15}></Icon>
+                                                </TouchableOpacity>
 
-                                            {/* Botão de aumentar frequência */}
-                                            <TouchableOpacity style={{ width: 50, height: 50, alignItems: "center", justifyContent: "center", padding: 5, borderWidth: 1, borderLeftWidth: 0, borderColor: '#0B7534', backgroundColor: '#0B7534' }} onPress={() => { moreFrequency() }}>
-                                                <Icon name="plus" color={'#FFF'} size={15}></Icon>
-                                            </TouchableOpacity>
+                                                {/* Exibe o valor atual da frequência de envio */}
+                                                <Text style={{ fontSize: 15, textAlign: "center", textAlignVertical: "center", width: 50, height: 50, borderWidth: 1, borderColor: '#999' }}>{frequencyCounterC}</Text>
+
+                                                {/* Botão de diminuir frequência */}
+                                                <TouchableOpacity style={{ width: 50, height: 50, alignItems: "center", justifyContent: "center", padding: 5, borderWidth: 1, borderRightWidth: 0, borderColor: '#D9534F', backgroundColor: '#D9534F' }} onPress={() => { lessFrequency(1) }}>
+                                                    <Icon name="minus" color={'#FFF'} size={15}></Icon>
+                                                </TouchableOpacity>
+                                            </View>
+
+                                            {/* Botões de + e - para aumentar ou diminuir a frequência de envio das informações pelo dispositivo */}
+                                            <View style={{ flexDirection: "column", marginLeft: 10 }}>
+                                                {/* Botão de aumentar frequência */}
+                                                <TouchableOpacity style={{ width: 50, height: 50, alignItems: "center", justifyContent: "center", padding: 5, borderWidth: 1, borderLeftWidth: 0, borderColor: '#0B7534', backgroundColor: '#0B7534' }} onPress={() => { moreFrequency(2) }}>
+                                                    <Icon name="plus" color={'#FFF'} size={15}></Icon>
+                                                </TouchableOpacity>
+                                                {/* Exibe o valor atual da frequência de envio */}
+                                                <Text style={{ fontSize: 15, textAlign: "center", textAlignVertical: "center", width: 50, height: 50, borderWidth: 1, borderColor: '#999' }}>{frequencyCounterD}</Text>
+                                                {/* Botão de diminuir frequência */}
+                                                <TouchableOpacity style={{ width: 50, height: 50, alignItems: "center", justifyContent: "center", padding: 5, borderWidth: 1, borderRightWidth: 0, borderColor: '#D9534F', backgroundColor: '#D9534F' }} onPress={() => { lessFrequency(2) }}>
+                                                    <Icon name="minus" color={'#FFF'} size={15}></Icon>
+                                                </TouchableOpacity>
+                                            </View>
+
+                                            {/* Botões de + e - para aumentar ou diminuir a frequência de envio das informações pelo dispositivo */}
+                                            <View style={{ flexDirection: "column", marginLeft: 10 }}>
+                                                {/* Botão de aumentar frequência */}
+                                                <TouchableOpacity style={{ width: 50, height: 50, alignItems: "center", justifyContent: "center", padding: 5, borderWidth: 1, borderLeftWidth: 0, borderColor: '#0B7534', backgroundColor: '#0B7534' }} onPress={() => { moreFrequency(3) }}>
+                                                    <Icon name="plus" color={'#FFF'} size={15}></Icon>
+                                                </TouchableOpacity>
+                                                {/* Exibe o valor atual da frequência de envio */}
+                                                <Text style={{ fontSize: 15, textAlign: "center", textAlignVertical: "center", width: 50, height: 50, borderWidth: 1, borderColor: '#999' }}>{frequencyCounterU}</Text>
+                                                {/* Botão de diminuir frequência */}
+                                                <TouchableOpacity style={{ width: 50, height: 50, alignItems: "center", justifyContent: "center", padding: 5, borderWidth: 1, borderRightWidth: 0, borderColor: '#D9534F', backgroundColor: '#D9534F' }} onPress={() => { lessFrequency(3) }}>
+                                                    <Icon name="minus" color={'#FFF'} size={15}></Icon>
+                                                </TouchableOpacity>
+                                            </View>
+
+
                                         </View>
                                     </View>
                                 </View>
