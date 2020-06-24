@@ -10,11 +10,12 @@ def callInsert (d, t, l):
   if l > LIGHTING_THRESHOLD:
     s = 1
 
-  occ = mysqls.tb_ocorrencia (d, float (t), int (l), s)
+  occ = mysqls.tb_ocorrencia (d, t, l, s)
   mysqls.dbInsertObj (mysqlConn.cursor (), occ)
   mysqlConn.commit ()
 
 # convert received data from wifi device to proper temperature and lighting values
+# DEPRECATED-
 def bytesToInt (b):
   aux = 0
   for i in b:
@@ -30,7 +31,7 @@ def uplinkCallback (msg, client):
   print ('Uplink received from: ', msg.dev_id)
   print ('PAYLOAD: ' + str (msg))
 
-  callInsert (1, msg.payload_fields [1] [0 : -3], msg.payload_fields [0] [0 : -3])
+  callInsert (1, float (msg.payload_fields [1] [0 : -3]), int (msg.payload_fields [0] [0 : -3]))
 
 # ttn downlink callback function
 def downlinkCallback (mid, client):
@@ -41,3 +42,11 @@ def mqttClientSetup (handler):
   client.set_uplink_callback (uplinkCallback)
   client.set_downlink_callback (downlinkCallback)
   return client
+
+def answer (http_code, json_return):
+  responseServer = app.response_class (
+    response = json.dumps (json_return),
+    status = http_code,
+    mimetype = 'application/json'
+  )
+  return responseServer
