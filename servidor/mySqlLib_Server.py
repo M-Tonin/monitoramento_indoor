@@ -6,6 +6,62 @@ import mysql.connector as mysql
 #Importando os códigos de erro da biblioteca para tratamento
 from mysql.connector import errorcode
 
+#Legenda:
+#   ALL = '*'
+#   DISP = 'Dispositivo'
+#   OC = 'Ocorrências'
+#   TEMP = 'Temperatura'
+#   FREQ = 'Frequência de envio do dispositivo'
+#   LUM = 'Luminosidade'
+
+#Comandos sql select
+SEL_ALL_DISP = "SELECT * FROM tb_dispositivo"
+SEL_ALL_OCS = "SELECT * FROM tb_ocorrencia"
+SEL_ID_DISP = "SELECT id_dispositivo FROM tb_dispositivo"
+SEL_MAX_DISP = "SELECT MAX(id_dispositivo) FROM tb_dispositivo"
+SEL_MIN_DISP = "SELECT MIN(id_dispositivo) FROM tb_dispositivo"
+SEL_MAX_OC = "SELECT MAX(id_ocorrencia) FROM tb_ocorrencia"
+SEL_TEMP_OC = "SELECT vl_temperatura FROM tb_ocorrencia"
+SEL_TEMP_HR_OC = "SELECT vl_temperatura,hr_ocorrencia FROM tb_ocorrencia"
+SEL_TEMP_HR_DT_OC = "SELECT vl_temperatura,hr_ocorrencia,dt_ocorrencia FROM tb_ocorrencia"
+SEL_LUM_OC = "SELECT st_luminosidade FROM tb_ocorrencia"
+SEL_FREQ_DISP = "SELECT vl_frequencia_captura FROM tb_dispositivo"
+
+#Comandos sql insert
+INS_OC = """INSERT INTO tb_ocorrencia(id_dispositivo,vl_temperatura,vl_luminosidade,dt_ocorrencia,
+                                              hr_ocorrencia,st_luminosidade)
+            VALUES({0},{1},{2},CURRENT_DATE,CURRENT_TIME,{3})"""
+            
+#Comandos específicos
+SEL_DISP_ULT_TEMP = """SELECT D.*,O.st_luminosidade
+                       FROM tb_dispositivo D
+                       INNER JOIN tb_ocorrencia O ON D.id_dispositivo = O.id_dispositivo
+                       WHERE O.id_ocorrencia = (SELECT MAX(id_ocorrencia)
+                                                FROM tb_ocorrencia
+                                                WHERE id_dispositivo = D.id_dispositivo)"""
+
+#Cláusulas
+WH = "\nWHERE "
+DISP = "id_dispositivo = {}"
+OC = "id_ocorrencia = {}"
+NO_DISP = "no_dispositivo = {}"
+ST_DISP = "st_ativo = {}"
+ULT_24_HORAS = """ TIMESTAMP(dt_ocorrencia,hr_ocorrencia) BETWEEN 
+                   TIMESTAMP(CURRENT_DATE - 1,CURRENT_TIME) AND 
+                   TIMESTAMP(CURRENT_DATE,CURRENT_TIME)"""
+WH_ULT_24_HORAS = WH + ULT_24_HORAS
+WH_DISP = WH + DISP
+WH_OC = WH + OC
+WH_NO_DISP = WH+NO_DISP
+WH_ST_DISP = WH+ST_DISP
+MAX_OC_DISP = "id_ocorrencia = ("+SEL_MAX_OC+"\n"+WH_DISP+")"
+WH_MAX_OC_DISP = WH + "id_ocorrencia = ("+SEL_MAX_OC+"\n"+WH_DISP+")"
+OD_BY_OC = "\nORDER BY id_ocorrencia"
+
+#Operadores
+E = " AND"
+OU = " OR" 
+
 #Esta função inicializa a conexão com o banco de dados
 #   Parâmetros: conn, hst, usr, passwrd.
 #   Retorno: Retorna a conexão, se bem sucedida. 'None' se houve falha na conexão.

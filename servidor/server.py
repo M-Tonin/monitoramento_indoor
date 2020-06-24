@@ -1,5 +1,6 @@
 import codecs
-import mySql_Server as mysqls
+import mySqlLib_Server as sql
+import jsonLib_Server as js
 import server_utils as util
 import ttn
 from flask import Flask, jsonify, request
@@ -16,7 +17,7 @@ accessKey = 'ttn-account-v2.L0jlR9qu-OzefvHzRzBq6SjaA6jPx8gBPfdo-6aLg4c'
 host = 'localhost'
 user = 'root'
 password = ''
-database = 'testedb'
+database = 'db_indoor'
 
 freq = 0
 
@@ -34,7 +35,7 @@ except:
   print ('Failed to connect to TTN.')
 
 # connect to mysql database
-util.mysqlConn = mysqls.dbStart (host, user, password, database)
+util.mysqlConn = sql.dbConnect (host, user, password, database)
 if util.mysqlConn != None:
   print ('Connected to database.')
 else:
@@ -63,18 +64,27 @@ def upWifi ():
 #   temperature difference between both devices
 @app.route ('/devices')
 def devices ():
-  resp1 = mysqls.dbSelect (cursor, 'SELECT FROM database tb_dispositivos VALUES (id_dispositivo, no_dispositivo, no_localizacao, st_luminosidade);')
-  resp2 = mysqls.dbSelect (cursor, 'última temperatura registrada, independente de qual dispositivo mandou')
-  resp3 = mysqls.dbSelect (cursor, 'diferença de temperatura e hora')
+  resp1 = sql.dbSelectFromQuery(cursor,sql.SEL_DISP_ULT_TEMP);
+  dict1 = js.generateDispositivosPkg(resp1)
+  resp2 = sql.dbSelectFromQuery(cursor,sql.SEL_TEMP_OC,sql.WH+" id_ocorrencia = "+
+                                   "("+sql.SEL_MAX_OC+")"+sql.E+sql.ULT_24_HORAS);
+  dict2 = js.generateUltTempJsonPkg(resp2);
+  idDisp1 = sql.dbSelectFromQuery(cursor,sql.SEL_MIN_DISP,sql.WH_ST_DISP.format("'A'"))
+  idDIsp2 = sql.dbSelectFromQuery(cursor,sql.SEL_MAX_DISP,sql.WH_ST_DISP.format("'A'"))
 
-  resp = resp1 + ', ' + resp2 + ', ' + resp3
+  resp3 = sql.dbSelectFromQueryUnion(cursor,[[sql.SEL_TEMP_HR_OC,sql.WH_MAX_OC_DISP.format(idDisp1[0][0])+sql.E+sql.ULT_24_HORAS],
+                                             [sql.SEL_TEMP_HR_OC,sql.WH_MAX_OC_DISP.format(idDIsp2[0][0])+sql.E+sql.ULT_24_HORAS]])
+  dict3 = js.generateDiffTempJsonPkg(resp3)
+  resp = js.concatDicts([dict1,dict2,dict3])
   return util.answer (200, resp)
 
 # all temperature readings from last 24h
 @app.route ('/temperatures')
 def temperatures ():
   data = request.get_json ()
-  resp = mysqls.dbSelect (cursor, 'SELECT data.id_dispositivo, hr_ocorrencia FROM tb_ocorrencia WHERE hr_ocorrencia >= CURRENT_TIME - 24;')
+  resp1 = sql.dbSelectFromQuery(cursor,sql.SEL_ALL_OCS,sql.WH_DISP.format(int(data))+sql.E+sql.ULT_24_HORAS)
+  dict1 = js.generateOcorrenciaPkg(resp1)
+  resp = dict1
 
   return util.answer (200, resp)
 
@@ -82,7 +92,9 @@ def temperatures ():
 @app.route ('/frequency')
 def frequency ():
   data = request.get_json ()
-  resp = mysqls.dbSelect (cursor, f'{data.id_dispositivo}')
+  resp1 = sql.dbSelectFromQuery(cursor,sql.SEL_FREQ_DISP,sql.WH_DISP.format(int(data)))
+  dict1 = js.generateFreqDispJsonPkg(resp1)
+  resp = dict1
   
   return util.answer (200, resp)
 
@@ -98,7 +110,7 @@ def updateFreq ():
     resp = jsonify (success = False)
     return util.answer (444, resp)
 
-  mysqls.dbInsert (cursor, f'INSERT INTO tb_dispositivos WHERE {id_dispositivo} BLABLABLA')
+  sql.dbInsert (cursor, f'INSERT INTO tb_dispositivos WHERE {id_dispositivo} BLABLABLA')
   freq = frequencia
   
   resp = jsonify (success = True)
