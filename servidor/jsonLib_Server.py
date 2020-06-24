@@ -1,8 +1,6 @@
 #Esta é uma biblioteca básica para a criação do json 
 #que será enviado para a aplicação
 
-#Importando a biblioteca de tratamento mySql_Server
-import mySql_Server as sql
 #Importando o módulo timedelta da biblioteca datetime
 from datetime import timedelta
 
