@@ -3,7 +3,9 @@ import mySql_Server as mysqls
 import server_utils as util
 import ttn
 from flask import Flask, jsonify, request
+from flask_json import FlaskJSON, JsonError, json_response, as_json
 
+# flask namespace
 app = Flask(__name__)
 
 # ttn variables
@@ -16,8 +18,7 @@ user = 'root'
 password = ''
 database = 'testedb'
 
-# DEBUG
-dataJson = '{    "ocorrencias":[        {            "id_ocorrencia":1,            "id_dispositivo":1,            "vl_temperatura":26.5,            "vl_luminosidade":400,            "dt_ocorrencia":"2020-06-22",            "hr_ocorrencia":"10:57:24"        },        {            "id_ocorrencia":2,            "id_dispositivo":1,            "vl_temperatura":25.2,            "vl_luminosidade":400,            "dt_ocorrencia":"2020-06-22",            "hr_ocorrencia":"10:58:24"        },        {            "id_ocorrencia":3,            "id_dispositivo":1,            "vl_temperatura":26.6,            "vl_luminosidade":400,            "dt_ocorrencia":"2020-06-22",            "hr_ocorrencia":"10:59:24"        },        {            "id_ocorrencia":4,            "id_dispositivo":1,            "vl_temperatura":25.3,            "vl_luminosidade":400,            "dt_ocorrencia":"2020-06-22",            "hr_ocorrencia":"11:00:24"        },        {            "id_ocorrencia":5,            "id_dispositivo":1,            "vl_temperatura":27.7,            "vl_luminosidade":400,            "dt_ocorrencia":"2020-06-22",            "hr_ocorrencia":"11:01:24"        },        {            "id_ocorrencia":6,            "id_dispositivo":1,            "vl_temperatura":28.4,            "vl_luminosidade":400,            "dt_ocorrencia":"2020-06-22",            "hr_ocorrencia":"11:02:24"        },        {            "id_ocorrencia":7,            "id_dispositivo":1,            "vl_temperatura":25.8,            "vl_luminosidade":400,            "dt_ocorrencia":"2020-06-22",            "hr_ocorrencia":"11:03:24"        },        {            "id_ocorrencia":8,            "id_dispositivo":2,            "vl_temperatura":26.5,            "vl_luminosidade":400,            "dt_ocorrencia":"2020-06-22",            "hr_ocorrencia":"11:04:24"        },        {            "id_ocorrencia":9,            "id_dispositivo":1,            "vl_temperatura":25.2,            "vl_luminosidade":400,            "dt_ocorrencia":"2020-06-22",            "hr_ocorrencia":"11:05:24"        },        {            "id_ocorrencia":10,            "id_dispositivo":1,            "vl_temperatura":26.1,            "vl_luminosidade":400,            "dt_ocorrencia":"2020-06-22",            "hr_ocorrencia":"11:06:24"        },        {            "id_ocorrencia":11,            "id_dispositivo":2,            "vl_temperatura":24.8,            "vl_luminosidade":400,            "dt_ocorrencia":"2020-06-22",            "hr_ocorrencia":"11:07:24"        },        {            "id_ocorrencia":12,            "id_dispositivo":1,            "vl_temperatura":26.5,            "vl_luminosidade":400,            "dt_ocorrencia":"2020-06-22",            "hr_ocorrencia":"11:08:24"        },        {            "id_ocorrencia":13,            "id_dispositivo":2,            "vl_temperatura":24.3,            "vl_luminosidade":400,            "dt_ocorrencia":"2020-06-22",            "hr_ocorrencia":"11:09:24"        }    ],    "ultimoRegDips1":{        "id_ocorrencia":12,        "id_dispositivo":1,        "vl_temperatura":26.5,        "vl_luminosidade":400,        "dt_ocorrencia":"2020-06-22",        "hr_ocorrencia":"11:08:24"    },    "ultimoRegDips2":{        "id_ocorrencia":13,        "id_dispositivo":2,        "vl_temperatura":24.3,        "vl_luminosidade":400,        "dt_ocorrencia":"2020-06-22",        "hr_ocorrencia":"11:09:24"    }}'
+freq = 0
 
 # connect to ttn iot application
 try:
@@ -38,25 +39,70 @@ if util.mysqlConn != None:
   print ('Connected to database.')
 else:
   print ('Failed to connect to database.')
+cursor = util.mysqlConn.cursor ()
 
 # setup is done, entering flask routes section
 print ('Listening...')
 
 # graph data request
-@app.route ('/graph_data')
-def graph_data ():
-  resp = jsonify (dataJson)
-  resp.status_code = 200
-  return resp
+@app.route ('/upWifi')
+def upWifi ():
+  temp = request.args.get ('temp')
+  lux = request.args.get ('lux')
+  util.callInsert (2, temp, lux)
+
+  dataFreq = {
+    'freq': freq
+  }
+  freq = 0
+  return dataFreq
+
+# first request upon launching application main page:
+#   id, name, localization, light status from each device
+#   last entry
+#   temperature difference between both devices
+@app.route ('/devices')
+def devices ():
+  resp1 = mysqls.dbSelect (cursor, 'SELECT FROM database tb_dispositivos VALUES (id_dispositivo, no_dispositivo, no_localizacao, st_luminosidade);')
+  resp2 = mysqls.dbSelect (cursor, 'última temperatura registrada, independente de qual dispositivo mandou')
+  resp3 = mysqls.dbSelect (cursor, 'diferença de temperatura e hora')
+
+  resp = resp1 + ', ' + resp2 + ', ' + resp3
+  return util.answer (200, resp)
+
+# all temperature readings from last 24h
+@app.route ('/temperatures')
+def temperatures ():
+  data = request.get_json ()
+  resp = mysqls.dbSelect (cursor, 'SELECT data.id_dispositivo, hr_ocorrencia FROM tb_ocorrencia WHERE hr_ocorrencia >= CURRENT_TIME - 24;')
+
+  return util.answer (200, resp)
+
+# device frequency request
+@app.route ('/frequency')
+def frequency ():
+  data = request.get_json ()
+  resp = mysqls.dbSelect (cursor, f'{data.id_dispositivo}')
+  
+  return util.answer (200, resp)
 
 # change device frequency
-@app.route ('/downlink', methods = ['GET',"POST"])
-def downlink ():
+@app.route ('/updateFreq', methods = ['GET',"POST"])
+def updateFreq ():
   data = request.get_json ()
+
+  try:
+    key = int (data ['key'])
+    frequencia = int (data ['frequencia'])
+  except (KeyError, TypeError, ValueError):
+    resp = jsonify (success = False)
+    return util.answer (444, resp)
+
+  mysqls.dbInsert (cursor, f'INSERT INTO tb_dispositivos WHERE {id_dispositivo} BLABLABLA')
+  freq = frequencia
   
   resp = jsonify (success = True)
-  resp.status_code = 200
-  return resp
+  return util.answer (200, resp)
 
 # online
 if __name__ == '__main__':
