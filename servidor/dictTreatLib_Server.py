@@ -1,5 +1,5 @@
-#Esta é uma biblioteca básica para a criação do json 
-#que será enviado para a aplicação
+#Esta é uma biblioteca básica para a criação dos dicionários que serão utilizados 
+#na serialização JSON que será enviada para aplicação
 
 #Importando o módulo timedelta da biblioteca datetime
 from datetime import timedelta
@@ -18,24 +18,24 @@ class OcorrenciaEnvio:
         self.horaRegistrada = hrReg
         self.dataRegistro = dtReg
                 
-class OcorrenciasJsonPkg:
+class OcorrenciasDict:
     def __init__(self,ocs = []):
         self.ocorrencias = ocs
         
-class DispositivosJsonPkg:
+class DispositivosDict:
     def __init__(self,dps = []):
         self.dispositivos = dps
         
-class UltTempJsonPkg:
+class UltTempDict:
     def __init__(self,ultTemp = None,idD = None):
         self.ultimaTemperatura = ultTemp
         
-class DiffTempHoraJsonPkg:
+class DiffTempHoraDict:
     def __init__(self,diffTemp = None,diffHr = None):
         self.diferencaTemperatura = diffTemp
         self.diferencaMin = diffHr
         
-class FreqDispJsonPkg:
+class FreqDispDict:
     def __init__(self,freqDisp = None):
         self.frequenciaDoDispositivo = freqDisp
 
@@ -47,35 +47,35 @@ class FreqDispJsonPkg:
 #Esta função gera um objeto contendo dicionários com os dados da tabela de ocorrências 
 #   Parâmetros: resultado de uma pesquisa 'SELECT' na tabela tb_ocorrencia
 #   Retorno: um objeto com os dicionários
-def generateOcorrenciaPkg(res):
-    ocJsonPkg = OcorrenciasJsonPkg()
+def getOcorrenciaDict(res):
+    ocDict = OcorrenciasDict()
     for row in res:       
         oc = OcorrenciaEnvio(float(row[2]),str(row[4]),str(row[5]))
-        ocJsonPkg.ocorrencias.append(vars(oc))
-    return ocJsonPkg
+        ocDict.ocorrencias.append(vars(oc))
+    return vars(ocDict)
 
 
 #Esta função gera um objeto contendo dicionários com os dados da tabela de dispositivos 
 #   Parâmetros: resultado de uma pesquisa 'SELECT' na tabela tb_dispositivo e tb_ocorrencia,
 #               com o status da luminosidade de cada dispositivo
 #   Retorno: um objeto com os dicionários    
-def generateDispositivosPkg(res):
-    dpJsonPkg = DispositivosJsonPkg()
+def getDispositivosDict(res):
+    dpDict = DispositivosDict()
     for row in res:       
         dp = DispositivoEnvio(row[0],str(row[1]),str(row[2]), str(row[6]))
-        dpJsonPkg.dispositivos.append(vars(dp))
-    return dpJsonPkg
+        dpDict.dispositivos.append(vars(dp))
+    return vars(dpDict)
     
 
 #Esta função gera um objeto contendo um dicionário com o valor a última temperatura 
 #   Parâmetros: resultado de uma pesquisa 'SELECT' na tabela tb_ocorrencia, com a temperatura da
 #                última ocorrência
 #   Retorno: um objeto com o dicionário     
-def generateUltTempJsonPkg(res):
-    ultTempJsonPkg = UltTempJsonPkg()
+def getUltTempDict(res):
+    ultTempDict = UltTempDict()
     for row in res:
-        ultTempJsonPkg.ultimaTemperatura = float(row[0])
-    return ultTempJsonPkg
+        ultTempDict.ultimaTemperatura = float(row[0])
+    return vars(ultTempDict)
 
 
 #Esta função gera um objeto contendo um dicionário com o valor da diferença entra as temperaturas e o tempo
@@ -83,24 +83,24 @@ def generateUltTempJsonPkg(res):
 #   Parâmetros: resultado de uma pesquisa 'SELECT' com 'UNION ALL'na tabela tb_ocorrencia, com os valores de
 #               de temperatura e hora da última ocorrência de cada dispositivo
 #   Retorno: um objeto com o dicionário      
-def generateDiffTempJsonPkg(res):
-    diffTempJsonPkg = DiffTempHoraJsonPkg()
+def getDiffTempDict(res):
+    diffTempDict = DiffTempHoraDict()
     i = 0
     for i in range(0,len(res),1):
         if(i > 0):
-            diffTempJsonPkg.diferencaTemperatura = round(abs(float(res[i][0]) - float(res[i - 1][0])),1)
-            diffTempJsonPkg.diferencaMin = int(round(abs(int(timedelta.total_seconds(res[i][1] - res[i - 1][1])) / 60),0))
-    return diffTempJsonPkg
+            diffTempDict.diferencaTemperatura = round(abs(float(res[i][0]) - float(res[i - 1][0])),1)
+            diffTempDict.diferencaMin = int(round(abs(int(timedelta.total_seconds(res[i][1] - res[i - 1][1])) / 60),0))
+    return vars(diffTempDict)
 
 
 #Esta função gera um objeto contendo um dicionário com o valor da frequência de envio de um dispositivo
 #   Parâmetros: resultado de uma pesquisa 'SELECT' na tabela tb_dispositivo, com a frequência de envio
 #   Retorno: um objeto com o dicionário  
-def generateFreqDispJsonPkg(res):
-    freqDispJsonPkg = FreqDispJsonPkg()
+def getFreqDispDict(res):
+    freqDispDict = FreqDispDict()
     for row in res:
-        freqDispJsonPkg.frequenciaDoDispositivo = float(row[0])
-    return freqDispJsonPkg
+        freqDispDict.frequenciaDoDispositivo = float(row[0])
+    return vars(freqDispDict)
     
     
 #Esta função concatena uma lista de dicionários para a serialização JSON

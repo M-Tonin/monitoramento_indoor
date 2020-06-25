@@ -1,6 +1,6 @@
 import codecs
 import mySqlLib_Server as sql
-import jsonLib_Server as js
+import dictTreatLib_Server as dt
 import server_utils as util
 import ttn
 from flask import Flask, jsonify, request
@@ -64,26 +64,32 @@ def upWifi ():
 #   temperature difference between both devices
 @app.route ('/devices')
 def devices ():
-  resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_DISP_ULT_TEMP)
-  dict1 = js.generateDispositivosPkg (resp1)
-  resp2 = sql.dbSelectFromQuery (cursor, sql.SEL_TEMP_OC, sql.WH + " id_ocorrencia = " +
-                                   "(" + sql.SEL_MAX_OC + ")" + sql.E + sql.ULT_24_HORAS)
-  dict2 = js.generateUltTempJsonPkg (resp2)
-  idDisp1 = sql.dbSelectFromQuery (cursor, sql.SEL_MIN_DISP, sql.WH_ST_DISP.format ("'A'"))
-  idDIsp2 = sql.dbSelectFromQuery (cursor, sql.SEL_MAX_DISP, sql.WH_ST_DISP.format ("'A'"))
-
-  resp3 = sql.dbSelectFromQueryUnion (cursor, [[sql.SEL_TEMP_HR_OC, sql.WH_MAX_OC_DISP.format (idDisp1 [0] [0]) + sql.E + sql.ULT_24_HORAS],
-                                               [sql.SEL_TEMP_HR_OC, sql.WH_MAX_OC_DISP.format (idDIsp2 [0] [0]) + sql.E + sql.ULT_24_HORAS]])
-  dict3 = js.generateDiffTempJsonPkg (resp3)
-  resp = js.concatDicts ([dict1, dict2, dict3])
+  resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_DISP_ULT_TEMP,'')
+  dict1 = dt.getDispositivosDict (resp1)
+  resp2 = sql.dbSelectFromQuery (cursor, sql.SEL_ULT_TEMP, '')
+  dict2 = dt.getUltTempDict (resp2)
+  idDisp1 = sql.dbSelectFromQuery (cursor, sql.SEL_MIN_DISP, 
+                                           sql.WH_ST_DISP.format ("'A'"))
+  idDIsp2 = sql.dbSelectFromQuery (cursor, sql.SEL_MAX_DISP, 
+                                           sql.WH_ST_DISP.format ("'A'"))
+  resp3 = sql.dbSelectFromQueryUnion (cursor, [[sql.SEL_TEMP_HR_OC, 
+                                                sql.WH_MAX_OC_DISP.format (idDisp1 [0] [0]) + sql.AND + 
+                                                sql.ULT_24_HORAS],
+                                               [sql.SEL_TEMP_HR_OC, 
+                                                sql.WH_MAX_OC_DISP.format (idDIsp2 [0] [0]) + sql.AND + 
+                                                sql.ULT_24_HORAS]])
+  dict3 = dt.getDiffTempDict (resp3)
+  resp = dt.concatDicts ([dict1, dict2, dict3])
   return util.answer (app, 200, resp)
 
 # all temperature readings from last 24h
 @app.route ('/temperatures')
 def temperatures ():
   data = request.get_json ()
-  resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_ALL_OCS, sql.WH_DISP.format (int (data)) + sql.E + sql.ULT_24_HORAS)
-  dict1 = js.generateOcorrenciaPkg (resp1)
+  resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_ALL_OCS, 
+                                         sql.WH_DISP.format (int (data)) + sql.AND + 
+                                         sql.ULT_24_HORAS)
+  dict1 = dt.getOcorrenciaDict (resp1)
 
   return util.answer (app, 200, dict1)
 
@@ -91,8 +97,9 @@ def temperatures ():
 @app.route ('/frequency')
 def frequency ():
   data = request.get_json ()
-  resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_FREQ_DISP, sql.WH_DISP.format (int (data)))
-  dict1 = js.generateFreqDispJsonPkg (resp1)
+  resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_FREQ_DISP, 
+                                         sql.WH_DISP.format (int (data)))
+  dict1 = dt.getFreqDispDict (resp1)
   
   return util.answer (app, 200, dict1)
 
@@ -107,12 +114,20 @@ def updateFreq ():
   except (KeyError, TypeError, ValueError):
     resp = jsonify (success = False)
     return util.answer (app, 444, resp)
-
+  
   #resp1 = sql.dbUpdate?? (cursor, query, clausule)
   #dict1 = blablabla
+  #freq = frequencia
+  
   freq = frequencia
   
-  resp = jsonify (success = True)
+  if(sql.dbExecQuery(cursor,sql.UPD_FREQ_DISP.format(int(frequencia)),
+                            sql.WH_DISP.format(int(key)))):  
+    resp = jsonify (success = True)
+    util.mysqlConn.commit()
+  else:
+    resp = jsonify (success = False)
+  
   return util.answer (app, 200, resp)
 
 # online

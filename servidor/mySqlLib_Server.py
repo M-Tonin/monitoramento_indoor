@@ -32,13 +32,9 @@ INS_OC = """INSERT INTO tb_ocorrencia(id_dispositivo,vl_temperatura,vl_luminosid
                                               hr_ocorrencia,st_luminosidade)
             VALUES({0},{1},{2},CURRENT_DATE,CURRENT_TIME,{3})"""
             
-#Comandos específicos
-SEL_DISP_ULT_TEMP = """SELECT D.*,O.st_luminosidade
-                       FROM tb_dispositivo D
-                       INNER JOIN tb_ocorrencia O ON D.id_dispositivo = O.id_dispositivo
-                       WHERE O.id_ocorrencia = (SELECT MAX(id_ocorrencia)
-                                                FROM tb_ocorrencia
-                                                WHERE id_dispositivo = D.id_dispositivo)"""
+#Comandos sql update
+UPD_FREQ_DISP = """UPDATE tb_dispositivo
+                   SET vl_frequencia_captura = {}"""
 
 #Cláusulas
 WH = "\nWHERE "
@@ -59,8 +55,41 @@ WH_MAX_OC_DISP = WH + "id_ocorrencia = ("+SEL_MAX_OC+"\n"+WH_DISP+")"
 OD_BY_OC = "\nORDER BY id_ocorrencia"
 
 #Operadores
-E = " AND"
-OU = " OR" 
+AND = " AND"
+OR = " OR" 
+
+#Comandos específicos completos
+SEL_DISP_ULT_TEMP = """SELECT D.*,O.st_luminosidade
+                       FROM tb_dispositivo D
+                       INNER JOIN tb_ocorrencia O ON D.id_dispositivo = O.id_dispositivo
+                       WHERE O.id_ocorrencia = (SELECT MAX(id_ocorrencia)
+                                                FROM tb_ocorrencia
+                                                WHERE id_dispositivo = D.id_dispositivo)"""
+SEL_ULT_TEMP = SEL_TEMP_OC + WH + " id_ocorrencia = " + "(" + SEL_MAX_OC + ")" + AND + ULT_24_HORAS                                                
+
+#Esta função é responsável pelo tratamento de erros do banco
+#   Parâmetros: um objeto mySql 'Error'.
+#   Retorno: uma String com a mensagem de erro correspondente
+def dbErrorTreatment (err):
+    if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+        #Caso o usuário esteja incorreto, este erro será mostrado
+        return "Acesso ao banco de dados negado! Usuário ou senha inválidos!"
+    elif err.errno == errorcode.ER_BAD_DB_ERROR:
+        #Caso a senha esteja incorreta, este erro será mostrado
+        return "O banco de dados especificado não existe!"
+    elif err.errno == errorcode.CR_CONN_HOST_ERROR:
+        #Caso não seja possível realizar conexão com o banco de dados
+        return "Servidor do banco de dados indisponível. Favor entrar em contato com o administrador do sistema."
+    elif err.errno == errorcode.ER_DUP_ENTRY:
+        #Caso tente inserir algum dado duplicado em uma coluna UNIQUE do banco 
+        return str(err)
+    elif err.errno == errorcode.ER_BAD_FIELD_ERROR:
+        #Caso tente inserir algum dado nulo em uma coluna NOT NULL do banco
+        return str(err)
+    else:
+        #Caso qualquer outro erro de conexão com o banco ocorra, mostrar mensagem de erro padrão
+        return str(err)
+
 
 #Esta função inicializa a conexão com o banco de dados
 #   Parâmetros: conn, hst, usr, passwrd.
@@ -70,22 +99,8 @@ def dbConnect(hst,usr,passwrd,db):
         conn = mysql.connect(database=db, user=usr, password=passwrd, host=hst)
         return conn
     except mysql.Error as err:
-        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-            #Caso o usuário esteja incorreto, este erro será mostrado
-            print('Acesso ao banco de dados negado! Usuário ou senha inválidos!')
-            return None
-        elif err.errno == errorcode.ER_BAD_DB_ERROR:
-            #Caso a senha esteja incorreta, este erro será mostrado
-            print('O banco de dados especificado não existe!')
-            return None
-        elif err.errno == errorcode.CR_CONN_HOST_ERROR:
-            #Caso não seja possível realizar conexão com o banco de dados
-            print('\nServidor do banco de dados indisponível. Favor entrar em contato com o administrador do sistema.')
-            return None
-        else:
-            #Caso qualquer outro erro de conexão com o banco ocorra, mostrar mensagem de erro padrão
-            print(err)
-            return None
+        print(dbErrorTreatment(err))
+        return None
 
             
 #Esta função insere dados no banco de dados com base em comando sql
@@ -96,17 +111,8 @@ def dbInsertFromQuery (cursor,query,clausula):
         cursor.execute(query+clausula+';')
         return True
     except mysql.Error as err:
-        if err.errno == errorcode.ER_DUP_ENTRY:
-            #Caso tente inserir algum dado duplicado em uma coluna UNIQUE do banco 
-            print('\nId duplicado')
-            return False
-        elif err.errno == errorcode.ER_BAD_FIELD_ERROR:
-            #Caso tente inserir algum dado nulo em uma coluna NOT NULL do banco
-            print('\nInforme o id')
-            return False
-        else:
-            print(err)
-            return False
+        print(dbErrorTreatment(err))
+        return False
 
             
 #Esta função insere dados no banco de dados com base em objeto
@@ -119,25 +125,16 @@ def dbInsertFromObj (cursor,obj,clausula):
         cursor.execute(sqlCmd)
         return True
     except mysql.Error as err:
-        if err.errno == errorcode.ER_DUP_ENTRY:
-            #Caso tente inserir algum dado duplicado em uma coluna UNIQUE do banco 
-            print('\nId duplicado')
-            return False
-        elif err.errno == errorcode.ER_BAD_FIELD_ERROR:
-            #Caso tente inserir algum dado nulo em uma coluna NOT NULL do banco
-            print(err)
-            return False
-        else:
-            print(err)
-            return False
+        print(dbErrorTreatment(err))
+        return False
             
             
 #Esta função faz o select no banco de dados com base em comando sql
 #   Parâmetros: cursor, query
 #   Retorno: retorna uma 'list' com resultado da query. Retorna 'None' caso haja alguma falha.
-def dbExecQuery (cursor,query):
+def dbExecQuery (cursor,query,clausula):
     try:
-        cursor.execute(query)
+        cursor.execute(query+clausula+';')
         return True
     except mysql.Error as err:
         print(err)
@@ -153,7 +150,7 @@ def dbSelectFromQuery (cursor,query,clausula = ''):
         cursor.execute(query+clausula)
         return cursor.fetchall()
     except mysql.Error as err:
-        print(err)
+        print(dbErrorTreatment(err))
         return None
         
         
@@ -177,7 +174,7 @@ def dbSelectFromQueryUnion (cursor,queryAndClausulas):
         cursor.execute(query)
         return cursor.fetchall()
     except mysql.Error as err:
-        print(err)
+        print(dbErrorTreatment(err))
         return None
         
 
@@ -191,5 +188,5 @@ def dbSelectFromObj (cursor,obj,clausula = ''):
         cursor.execute(sqlCmd)
         return cursor.fetchall()
     except mysql.Error as err:
-        print(err)
+        print(dbErrorTreatment(err))
         return None
