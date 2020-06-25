@@ -7,7 +7,7 @@ from flask import Flask, jsonify, request
 from flask_json import FlaskJSON, JsonError, json_response, as_json
 
 # flask namespace
-app = Flask(__name__)
+app = Flask (__name__)
 
 # ttn variables
 appId = 'monitoramento-indoor'
@@ -42,10 +42,10 @@ else:
   print ('Failed to connect to database.')
 cursor = util.mysqlConn.cursor ()
 
-# setup is done, entering flask routes section
+# setup is done; entering flask routine section
 print ('Listening...')
 
-# graph data request
+# uplink received from wifi device
 @app.route ('/upWifi')
 def upWifi ():
   temp = request.args.get ('temp')
@@ -64,39 +64,37 @@ def upWifi ():
 #   temperature difference between both devices
 @app.route ('/devices')
 def devices ():
-  resp1 = sql.dbSelectFromQuery(cursor,sql.SEL_DISP_ULT_TEMP);
-  dict1 = js.generateDispositivosPkg(resp1)
-  resp2 = sql.dbSelectFromQuery(cursor,sql.SEL_TEMP_OC,sql.WH+" id_ocorrencia = "+
-                                   "("+sql.SEL_MAX_OC+")"+sql.E+sql.ULT_24_HORAS);
-  dict2 = js.generateUltTempJsonPkg(resp2);
-  idDisp1 = sql.dbSelectFromQuery(cursor,sql.SEL_MIN_DISP,sql.WH_ST_DISP.format("'A'"))
-  idDIsp2 = sql.dbSelectFromQuery(cursor,sql.SEL_MAX_DISP,sql.WH_ST_DISP.format("'A'"))
+  resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_DISP_ULT_TEMP)
+  dict1 = js.generateDispositivosPkg (resp1)
+  resp2 = sql.dbSelectFromQuery (cursor, sql.SEL_TEMP_OC, sql.WH + " id_ocorrencia = " +
+                                   "(" + sql.SEL_MAX_OC + ")" + sql.E + sql.ULT_24_HORAS)
+  dict2 = js.generateUltTempJsonPkg (resp2)
+  idDisp1 = sql.dbSelectFromQuery (cursor, sql.SEL_MIN_DISP, sql.WH_ST_DISP.format ("'A'"))
+  idDIsp2 = sql.dbSelectFromQuery (cursor, sql.SEL_MAX_DISP, sql.WH_ST_DISP.format ("'A'"))
 
-  resp3 = sql.dbSelectFromQueryUnion(cursor,[[sql.SEL_TEMP_HR_OC,sql.WH_MAX_OC_DISP.format(idDisp1[0][0])+sql.E+sql.ULT_24_HORAS],
-                                             [sql.SEL_TEMP_HR_OC,sql.WH_MAX_OC_DISP.format(idDIsp2[0][0])+sql.E+sql.ULT_24_HORAS]])
-  dict3 = js.generateDiffTempJsonPkg(resp3)
-  resp = js.concatDicts([dict1,dict2,dict3])
-  return util.answer (200, resp)
+  resp3 = sql.dbSelectFromQueryUnion (cursor, [[sql.SEL_TEMP_HR_OC, sql.WH_MAX_OC_DISP.format (idDisp1 [0] [0]) + sql.E + sql.ULT_24_HORAS],
+                                               [sql.SEL_TEMP_HR_OC, sql.WH_MAX_OC_DISP.format (idDIsp2 [0] [0]) + sql.E + sql.ULT_24_HORAS]])
+  dict3 = js.generateDiffTempJsonPkg (resp3)
+  resp = js.concatDicts ([dict1, dict2, dict3])
+  return util.answer (app, 200, resp)
 
 # all temperature readings from last 24h
 @app.route ('/temperatures')
 def temperatures ():
   data = request.get_json ()
-  resp1 = sql.dbSelectFromQuery(cursor,sql.SEL_ALL_OCS,sql.WH_DISP.format(int(data))+sql.E+sql.ULT_24_HORAS)
-  dict1 = js.generateOcorrenciaPkg(resp1)
-  resp = dict1
+  resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_ALL_OCS, sql.WH_DISP.format (int (data)) + sql.E + sql.ULT_24_HORAS)
+  dict1 = js.generateOcorrenciaPkg (resp1)
 
-  return util.answer (200, resp)
+  return util.answer (app, 200, dict1)
 
 # device frequency request
 @app.route ('/frequency')
 def frequency ():
   data = request.get_json ()
-  resp1 = sql.dbSelectFromQuery(cursor,sql.SEL_FREQ_DISP,sql.WH_DISP.format(int(data)))
-  dict1 = js.generateFreqDispJsonPkg(resp1)
-  resp = dict1
+  resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_FREQ_DISP, sql.WH_DISP.format (int (data)))
+  dict1 = js.generateFreqDispJsonPkg (resp1)
   
-  return util.answer (200, resp)
+  return util.answer (app, 200, dict1)
 
 # change device frequency
 @app.route ('/updateFreq', methods = ['GET',"POST"])
@@ -108,13 +106,14 @@ def updateFreq ():
     frequencia = int (data ['frequencia'])
   except (KeyError, TypeError, ValueError):
     resp = jsonify (success = False)
-    return util.answer (444, resp)
+    return util.answer (app, 444, resp)
 
-  sql.dbInsert (cursor, f'INSERT INTO tb_dispositivos WHERE {id_dispositivo} BLABLABLA')
+  #resp1 = sql.dbUpdate?? (cursor, query, clausule)
+  #dict1 = blablabla
   freq = frequencia
   
   resp = jsonify (success = True)
-  return util.answer (200, resp)
+  return util.answer (app, 200, resp)
 
 # online
 if __name__ == '__main__':

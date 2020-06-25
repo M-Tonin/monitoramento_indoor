@@ -43,9 +43,9 @@ def mqttClientSetup (handler):
   client.set_downlink_callback (downlinkCallback)
   return client
 
-def answer (http_code, json_return):
+def answer (app, http_code, json):
   responseServer = app.response_class (
-    response = json.dumps (json_return),
+    response = json
     status = http_code,
     mimetype = 'application/json'
   )
