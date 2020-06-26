@@ -1,17 +1,17 @@
-import mySql_Server as mysqls
+import mySqlLib_Server as sql
 import ttn
 
 mysqlConn = None
 LIGHTING_THRESHOLD = 200
 
-# generate mysql object and insert into mysql database
+# generate sql insert command from received telemetry data and submit to the database
 def callInsert (d, t, l):
   s = 0
   if l > LIGHTING_THRESHOLD:
     s = 1
+  s = str (s)
 
-  occ = mysqls.tb_ocorrencia (d, t, l, s)
-  mysqls.dbInsertObj (mysqlConn.cursor (), occ)
+  sql.dbInsertFromQuery (mysqlConn.cursor (), sql.INS_OC.format (d, t, l, s), '')
   mysqlConn.commit ()
 
 # convert received data from wifi device to proper temperature and lighting values
@@ -45,7 +45,7 @@ def mqttClientSetup (handler):
 
 def answer (app, http_code, json):
   responseServer = app.response_class (
-    response = json
+    response = json,
     status = http_code,
     mimetype = 'application/json'
   )

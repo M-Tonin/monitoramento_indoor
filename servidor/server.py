@@ -1,4 +1,3 @@
-import codecs
 import mySqlLib_Server as sql
 import dictTreatLib_Server as dt
 import server_utils as util
@@ -64,7 +63,7 @@ def upWifi ():
 #   temperature difference between both devices
 @app.route ('/devices')
 def devices ():
-  resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_DISP_ULT_TEMP,'')
+  resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_DISP_ULT_TEMP, '')
   dict1 = dt.getDispositivosDict (resp1)
   resp2 = sql.dbSelectFromQuery (cursor, sql.SEL_ULT_TEMP, '')
   dict2 = dt.getUltTempDict (resp2)
@@ -114,17 +113,13 @@ def updateFreq ():
   except (KeyError, TypeError, ValueError):
     resp = jsonify (success = False)
     return util.answer (app, 444, resp)
-  
-  #resp1 = sql.dbUpdate?? (cursor, query, clausule)
-  #dict1 = blablabla
-  #freq = frequencia
-  
+
   freq = frequencia
-  
-  if(sql.dbExecQuery(cursor,sql.UPD_FREQ_DISP.format(int(frequencia)),
-                            sql.WH_DISP.format(int(key)))):  
+
+  if (sql.dbExecQuery (cursor, sql.UPD_FREQ_DISP.format (int (frequencia)),
+                            sql.WH_DISP.format (int (key)))):  
     resp = jsonify (success = True)
-    util.mysqlConn.commit()
+    util.mysqlConn.commit ()
   else:
     resp = jsonify (success = False)
   
@@ -132,4 +127,4 @@ def updateFreq ():
 
 # online
 if __name__ == '__main__':
-  app.run (host = '0.0.0.0', debug = True)
+  app.run (host = '192.168.0.21', debug = False)
