@@ -65,7 +65,7 @@ SEL_DISP_ULT_TEMP = """SELECT D.*,O.st_luminosidade
                        WHERE O.id_ocorrencia = (SELECT MAX(id_ocorrencia)
                                                 FROM tb_ocorrencia
                                                 WHERE id_dispositivo = D.id_dispositivo)"""
-SEL_ULT_TEMP = SEL_TEMP_OC + WH + " id_ocorrencia = " + "(" + SEL_MAX_OC + ")" + AND + ULT_24_HORAS                                                
+SEL_ULT_TEMP_HR = SEL_TEMP_HR_OC + WH + " id_ocorrencia = " + "(" + SEL_MAX_OC + ")" + AND + ULT_24_HORAS                                                
 
 #Esta função é responsável pelo tratamento de erros do banco
 #   Parâmetros: um objeto mySql 'Error'.

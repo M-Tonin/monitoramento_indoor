@@ -17,6 +17,11 @@ class OcorrenciaEnvio:
         self.temperatura = vlTmp
         self.horaRegistrada = hrReg
         self.dataRegistro = dtReg
+        
+class DiffTempHoraEnvio:
+    def __init__(self,ultTemp = None,hrReg = None):
+        self.ultimaTemperatura = ultTemp
+        self.horaRegistrada = hrReg
                 
 class OcorrenciasDict:
     def __init__(self,ocs = []):
@@ -27,8 +32,8 @@ class DispositivosDict:
         self.dispositivos = dps
         
 class UltTempDict:
-    def __init__(self,ultTemp = None,idD = None):
-        self.ultimaTemperatura = ultTemp
+    def __init__(self,diffTmpHr = None):
+        self.ultTempHoraRegistrada = diffTmpHr
         
 class DiffTempHoraDict:
     def __init__(self,diffTemp = None,diffHr = None):
@@ -74,7 +79,8 @@ def getDispositivosDict(res):
 def getUltTempDict(res):
     ultTempDict = UltTempDict()
     for row in res:
-        ultTempDict.ultimaTemperatura = float(row[0])
+        dth = DiffTempHoraEnvio(float(row[0]),str(row[1]))
+        ultTempDict.ultTempHoraRegistrada = vars(dth)
     return vars(ultTempDict)
 
 
