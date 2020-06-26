@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `tb_ocorrencia` (
   `hr_ocorrencia` TIME NOT NULL COMMENT 'Hora da captura dos dados',
   `st_luminosidade` CHAR(1) NOT NULL COMMENT '\'Indica se o dispositivo está ligado ou desligado\'',
   PRIMARY KEY (`id_ocorrencia`, `vl_luminosidade`),
-  UNIQUE INDEX `idtb_luminosidade_UNIQUE` (`id_ocorrencia` ASC),
+  UNIQUE INDEX `id_ocorrencia_UNIQUE` (`id_ocorrencia` ASC),
   INDEX `fk_tb_ocorrencia_tb_dispositivo_idx` (`id_dispositivo` ASC),
   CONSTRAINT `fk_tb_ocorrencia_tb_dispositivo`
     FOREIGN KEY (`id_dispositivo`)
