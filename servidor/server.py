@@ -1,12 +1,15 @@
 import mySqlLib_Server as sql
 import dictTreatLib_Server as dt
+import json
 import server_utils as util
 import ttn
 from flask import Flask, jsonify, request
 from flask_json import FlaskJSON, JsonError, json_response, as_json
+from flask_ngrok import run_with_ngrok
 
 # flask namespace
 app = Flask (__name__)
+run_with_ngrok (app)
 
 # ttn variables
 appId = 'monitoramento-indoor'
@@ -47,14 +50,17 @@ print ('Listening...')
 # uplink received from wifi device
 @app.route ('/upWifi')
 def upWifi ():
-  temp = request.args.get ('temp')
-  lux = request.args.get ('lux')
-  util.callInsert (2, temp, lux)
+  global freq
+  temp = float (request.args.get ('temp')) / 10
+  lux = int (request.args.get ('lux'))
 
+  util.callInsert (2, temp, lux)
+  print (f'FREQ = {freq}')
   dataFreq = {
     'freq': freq
   }
   freq = 0
+
   return dataFreq
 
 # first request upon launching application main page:
@@ -65,7 +71,7 @@ def upWifi ():
 def devices ():
   resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_DISP_ULT_TEMP, '')
   dict1 = dt.getDispositivosDict (resp1)
-  resp2 = sql.dbSelectFromQuery (cursor, sql.SEL_ULT_TEMP, '')
+  resp2 = sql.dbSelectFromQuery (cursor, sql.SEL_ULT_TEMP_HR, '')
   dict2 = dt.getUltTempDict (resp2)
   idDisp1 = sql.dbSelectFromQuery (cursor, sql.SEL_MIN_DISP, 
                                            sql.WH_ST_DISP.format ("'A'"))
@@ -78,7 +84,8 @@ def devices ():
                                                 sql.WH_MAX_OC_DISP.format (idDIsp2 [0] [0]) + sql.AND + 
                                                 sql.ULT_24_HORAS]])
   dict3 = dt.getDiffTempDict (resp3)
-  resp = dt.concatDicts ([dict1, dict2, dict3])
+
+  resp = json.dumps (dt.concatDicts ([dict1, dict2, dict3]), indent = 4, separators = (", "," : "))
   return util.answer (app, 200, resp)
 
 # all temperature readings from last 24h
@@ -86,10 +93,9 @@ def devices ():
 def temperatures ():
   data = request.get_json ()
   resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_ALL_OCS, 
-                                         sql.WH_DISP.format (int (data)) + sql.AND + 
+                                         sql.WH_DISP.format (data ['id_dispositivo']) + sql.AND + 
                                          sql.ULT_24_HORAS)
-  dict1 = dt.getOcorrenciaDict (resp1)
-
+  dict1 = json.dumps (dt.getOcorrenciaDict (resp1), indent = 4, separators = (", "," : "))
   return util.answer (app, 200, dict1)
 
 # device frequency request
@@ -97,34 +103,42 @@ def temperatures ():
 def frequency ():
   data = request.get_json ()
   resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_FREQ_DISP, 
-                                         sql.WH_DISP.format (int (data)))
-  dict1 = dt.getFreqDispDict (resp1)
-  
+                                         sql.WH_DISP.format (data ['id_dispositivo']))
+
+  dict1 = json.dumps (dt.getFreqDispDict (resp1), indent = 4, separators = (", "," : "))
   return util.answer (app, 200, dict1)
 
 # change device frequency
 @app.route ('/updateFreq', methods = ['GET',"POST"])
 def updateFreq ():
+  global freq
   data = request.get_json ()
 
   try:
-    key = int (data ['key'])
-    frequencia = int (data ['frequencia'])
+    key = data ['id_dispositivo']
+    frequencia = data ['nova_frequencia']
   except (KeyError, TypeError, ValueError):
     resp = jsonify (success = False)
     return util.answer (app, 444, resp)
 
-  freq = frequencia
+  if key == 1 and frequencia > 0:
+    util.callSendToTTN (mqttClient, 'dispositivo1', frequencia)
+  else:
+    freq = frequencia
 
-  if (sql.dbExecQuery (cursor, sql.UPD_FREQ_DISP.format (int (frequencia)),
-                            sql.WH_DISP.format (int (key)))):  
+  if (sql.dbExecQuery (cursor, sql.UPD_FREQ_DISP.format (frequencia),
+                            sql.WH_DISP.format (key))):  
     resp = jsonify (success = True)
     util.mysqlConn.commit ()
   else:
     resp = jsonify (success = False)
   
-  return util.answer (app, 200, resp)
+  return resp
+
+@app.route ('/')
+def debug ():
+  return 'DEBUG-'
 
 # online
 if __name__ == '__main__':
-  app.run (host = '192.168.0.21', debug = False)
+  app.run ()

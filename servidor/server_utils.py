@@ -1,3 +1,4 @@
+import codecs
 import mySqlLib_Server as sql
 import ttn
 
@@ -13,6 +14,11 @@ def callInsert (d, t, l):
 
   sql.dbInsertFromQuery (mysqlConn.cursor (), sql.INS_OC.format (d, t, l, s), '')
   mysqlConn.commit ()
+
+def callSendToTTN (client, device, downlink):
+  downlink = hex (downlink)
+  downlink = codecs.encode (codecs.decode (downlink [2:], 'hex'), 'base64').decode ()
+  client.send (device, downlink, port=1, conf=False, sched="replace")
 
 # convert received data from wifi device to proper temperature and lighting values
 # DEPRECATED-
