@@ -17,92 +17,78 @@ import axios from 'axios';
 // #0B7534  VERDE ESCURO
 // #109F6C  VERDE CLARO
 
-export default function Home() {
-    //Inicialização das variáveis
+export default function Home({ navigation }) {
+    const [devices, setDevices] = useState();
     const [expanded, setExpanded] = useState(false); //Controla o estado dos detalhes (expanded, collapsed)
+    const [ocorrencias, setOcorrencias] = useState([]);
+
+    const [ultimaTemperatura, setUltimaTemperatura] = useState();
+    const [horaRegistrada, setHoraRegistrada] = useState();
+    const [diferencaTemperatura, setDiferencaTemperatura] = useState();
+
     const [frequencyCounterC, setFrequencyCounterC] = useState(0);
     const [frequencyCounterD, setFrequencyCounterD] = useState(0);
     const [frequencyCounterU, setFrequencyCounterU] = useState(0);
-    const [graphData, setGraphData] = useState([])
-    const [dados, setDados] = useState()
-    const [URD1, setURD1] = useState([])
-    const [URD2, setURD2] = useState([])
-    const [devices, setDevices] = useState([
-        { key: 1, name: 'Dispositivo 1', expanded: false, lightState: true, dadosDispositivo: [] },
-        { key: 2, name: 'Dispositivo 2', expanded: false, lightState: false, dadosDispositivo: [] }
-    ]);
-    const [modalVisible, setModalVisible] = useState(false); //Define o modal como visivel ou não
 
-    //const [isEnabled, setIsEnabled] = useState(false);
-    //const toggleSwitch = () => setIsEnabled(previousState => !previousState);
-
-    //Para funcionar no Android sem bugs, no iOS já funciona corretamente
-    if (Platform.OS === 'android') {
-        UIManager.setLayoutAnimationEnabledExperimental(true);
+    function readDevices() {
+        alert(JSON.stringify(devices));
     }
 
-    //Função que realiza a troca do estado dos detalhes do dispositivo, bem como tipo de animação realizada na troca de estado
-    function changeLayout(searchKey) {
-        let expand; //Variável que vai receber a mudança do estado, e inserir no novo array
-        let devicesUpdated = []; //Novo Array de dispositivos que substituirá o array inicial, com os estados dinamicamente alterados
-        devices.forEach((device) => { //Laço para percorrer todos os dispositivos existentes
-            if (device.key === searchKey) { //Se a a chave recebida for igual a lida atualmente, inverte o estado do dispositivo atual
-                expand = !device.expanded;
-                if (device.expanded === false) {
-                    var graphicComponent = (
-                        <LineChart
-                            fromZero
-                            renderDotContent={({ x, y, index }) => <Text style={{ position: "absolute", top: y - 25, left: x - 10, borderRadius: 100, width: 50, height: 20, textAlign: "center", textAlignVertical: "center" }}>{dados.datasets[0].data[index]}</Text>}
-                            yAxisSuffix="°C"
-                            verticalLabelRotation={90}
-                            data={dados}
-                            width={Dimensions.get("window").width + (3 * 20)}
-                            height={400}
-                            chartConfig={{
-                                backgroundColor: '#1CC910',
-                                backgroundGradientFrom: '#EFF3FF',
-                                backgroundGradientTo: '#EFEFEF',
-                                color: (opacity = 1) => `rgba(0,0,0, ${opacity})`,
-                                style: { borderRadius: 16 },
+    async function getDevices() {
+        setDevices([]);
+        await axios.get('http:192.168.25.163:5000/devices_v3')
+            .then(response => {
+                //alert(JSON.stringify(response.data));
+                setUltimaTemperatura(response.data.ultTempHoraRegistrada.ultimaTemperatura);
+                setHoraRegistrada(response.data.ultTempHoraRegistrada.horaRegistrada);
+                setDiferencaTemperatura(response.data.diferencaTemperatura);
 
-                            }}
-                            style={{ marginVertical: 8, borderRadius: 16 }}
-                        >
+                setDevices([]);
+                response.data.dispositivos.forEach((disp) => {
+                    //alert(JSON.stringify(disp));
+                    let list = {
+                        key: disp.idDispositivo,
+                        //name: 'Dispositivo ' + disp.idDispositivo, 
+                        name: disp.nomeDispositivo,
+                        local: disp.localDispositivo,
+                        expanded: false,
+                        lightState: disp.statusLuminosidade == 1 ? true : false,
+                        chartComponent: []
+                    }
+                    setDevices(oldArray => [...oldArray, list]);
+                })
+                //setDevices(response.data.dispositivos);
+            })
+            .catch(error => {
+                alert("Erro na requisição getDevices: " + JSON.stringify(error));
+            });
+    }
 
-
-                        </LineChart>
-                    );
-
-                    getFrequency(1)
-                    loadDataForGraphic()
-                    //alert(JSON.stringify(graphData))
+    function getFrequency(frequency) {
+        let ar = frequency.toString().split("");//recebe o valor da frequência atual divida casa por casa (CDU)
+        //se o valor da frequência for composto por três casas, salva os valores na suas respectivas variáveis
+        if (ar.length === 3) {
+            setFrequencyCounterC(parseInt(ar[0]));
+            setFrequencyCounterD(parseInt(ar[1]));
+            setFrequencyCounterU(parseInt(ar[2]));
+        }
+        else {//se for composto por duas casas, define a centena como 0 e salva a dezena e a unidade nas respectivas variáveis.
+            if (ar.length === 2) {
+                setFrequencyCounterC(0)
+                setFrequencyCounterD(parseInt(ar[0]));
+                setFrequencyCounterU(parseInt(ar[1]));
+            }
+            else {//se for composto por uma casa, define a centena e a dezena como 0 e a salva a unidade na sua variável.
+                if (ar.length === 1) {
+                    setFrequencyCounterC(0);
+                    setFrequencyCounterD(0);
+                    setFrequencyCounterU(parseInt(ar[0]));
+                }
+                else {
+                    alert("Opção não cadastrada!");
                 }
             }
-            else {//Se a chave não for igual, o estado deve ser false, para que apenas 1 dropdown esteja aberto por vez
-                expand = false;
-                var graphicComponent = [];
-            }
-
-            let list = { //Cada dispositivo será alterado como necessitar
-                key: device.key,
-                name: device.name,
-                expanded: expand,
-                lightState: device.lightState,
-                dadosDispositivo: graphicComponent
-            }
-            devicesUpdated.push(list); //Insere cada dispostivo no novo Array de dispositivos
-        });
-        setDevices(devicesUpdated); //Altera o array antigo, com o array novo, garantindo o funcionamento do dropdown para todos os dispositivos
-        //alert(JSON.stringify(devicesUpdated));
-
-
-        //alert(key);
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        //let expand = !expanded; //Pegamos o oposto do valor atual de expanded, para abrir se estiver fechada, e fechar se estiver aberta
-        //setExpanded(expand); //Passamos o novo valor para a expanded
-        setFrequencyCounterC(0);
-        setFrequencyCounterD(0);
-        setFrequencyCounterU(0);
+        }
     }
 
     //Função que aumenta a frequência
@@ -170,96 +156,139 @@ export default function Home() {
 
         }
         //requisição de atualização
-        axios.post("http://192.168.2.113:5000/updateFreq", params).then(response => {
+        axios.post("http://192.168.25.163:5000/updateFreq", params).then(response => {
             if (response.data.success) {
-                alert(JSON.stringify(response));
+                alert('Frequência alterada com sucesso!');
             }
         }).catch(error => { alert(JSON.stringify(error)) });
         //alert("A frequência do " +  teste.nome + " foi alterada para " + teste.data + "!" + teste.hora);
 
     }
-    //função para obter o valor atual da frequência do dispositivo informado
-    function getFrequency(key) {
-        const params = {//JSON com os dados para consulta
-            keyDevice: key
-        }
-        //requisição para obter o valor da frequência
-        axios.post("http://192.168.2.113:5000/frequency", params).then(response => {
-            let ar = response.data.frequenciaDoDispositivo.toString().split("");//recebe o valor da frequência atual divida casa por casa (CDU)
-            //se o valor da frequência for composto por três casas, salva os valores na suas respectivas variáveis
-            if (ar.length === 3) {
-                setFrequencyCounterC(ar[0]);
-                setFrequencyCounterD(ar[1]);
-                setFrequencyCounterU(ar[2]);
-            }
-            else {//se for composto por duas casas, define a centena como 0 e salva a dezena e a unidade nas respectivas variáveis.
-                if (ar.length === 2) {
-                    setFrequencyCounterC(0)
-                    setFrequencyCounterD(ar[0]);
-                    setFrequencyCounterU(ar[1]);
-                }
-                else {//se for composto por uma casa, define a centena e a dezena como 0 e a salva a unidade na sua variável.
-                    if (ar.length === 1) {
-                        setFrequencyCounterC(0)
-                        setFrequencyCounterD(0)
-                        setFrequencyCounterU(ar[0])
+
+    function changeLayout(searchKey, graphicData) {
+        //alert('INICIANDO: ' + JSON.stringify(graphicData));
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        let expand; //Variável que vai receber a mudança do estado, e inserir no novo array
+        let devicesUpdated = []; //Novo Array de dispositivos que substituirá o array inicial, com os estados dinamicamente alterados
+        devices.forEach((device) => { //Laço para percorrer todos os dispositivos existentes
+            var graphicComponent;
+            if (device.key === searchKey) { //Se a a chave recebida for igual a lida atualmente, inverte o estado do dispositivo atual
+                expand = !device.expanded;
+                if (device.expanded === false) {
+                    if (graphicData != null && graphicData != undefined) {
+                        //alert("UHUUUUL: " + JSON.stringify(graphicData));
+                        graphicComponent = (
+                            <LineChart
+                                fromZero
+                                renderDotContent={({ x, y, index }) => <Text style={{ position: "absolute", top: y - 25, left: x - 10, borderRadius: 100, width: 50, height: 20, textAlign: "center", textAlignVertical: "center" }}>{graphicData ? graphicData.datasets[0].data[index] : ""}</Text>}
+                                yAxisSuffix="°C"
+                                verticalLabelRotation={90}
+                                data={graphicData}
+                                //data={teste}
+                                width={Dimensions.get("window").width + (3 * 20)}
+                                height={400}
+                                chartConfig={{
+                                    backgroundColor: '#1CC910',
+                                    backgroundGradientFrom: '#EFF3FF',
+                                    backgroundGradientTo: '#EFEFEF',
+                                    color: (opacity = 1) => `rgba(0,0,0, ${opacity})`,
+                                    style: { borderRadius: 16 },
+
+                                }}
+                                style={{ marginVertical: 8, borderRadius: 16 }}
+                            >
+
+
+                            </LineChart>
+                        )
                     }
                     else {
-                        alert("Opção não cadastrada!")
+                        graphicComponent = [];
                     }
                 }
             }
-        }).catch(error => { alert(JSON.stringify(error)) })
-    }
-    
-    function loadDataForGraphic() {
-        axios.get("http://192.168.2.113:5000/dados_graph")
-            .then(response => {
-                setGraphData(response.data)
-                //]alert(JSON.stringify(graphData))
-                
-                const { ultimoRegDips1 } = graphData; //desconstrói recebendo o último valor do dispositivo 1
-                const { ultimoRegDips2 } = graphData; //desconstrói recebendo o último valor do dispositivo 2
-                setURD1(ultimoRegDips1); //Salva na state o último valor registrado do dispositivo 1
-                setURD2(ultimoRegDips2); //Salva na state o último valor registrado do dispositivo 2
-            
-                //alert(JSON.stringify(graphData));
-                const { ocorrencias: dataForGraphic } = graphData;
-                //alert(JSON.stringify(dataForGraphic));
-            
-                let hr_ocorrencia = [], dt_ocorrencia = [], vl_temperatura = [];
-            
-                dataForGraphic.map((num) => {
-                  hr_ocorrencia.push(num.hr_ocorrencia + " " + num.dt_ocorrencia);
-                  //hr_ocorrencia.push(num.hr_ocorrencia);
-                  //dt_ocorrencia.push(num.dt_ocorrencia);
-                  vl_temperatura.push(num.vl_temperatura);
-                });
-            
-                let graphicData = {
-                  labels: hr_ocorrencia,
-                  datasets: [{ data: vl_temperatura, strokeWidth: 2 }]
-                }
-                setDados(graphicData);
-            })
-            .catch(error => {
-                alert(JSON.stringify(error))
-            })
+            else {//Se a chave não for igual, o estado deve ser false, para que apenas 1 dropdown esteja aberto por vez
+                expand = false;
+                graphicComponent = [];
+            }
+
+            let list = { //Cada dispositivo será alterado como necessitar
+                key: device.key,
+                name: device.name,
+                local: device.local,
+                expanded: expand,
+                lightState: device.lightState,
+                chartComponent: graphicComponent
+            }
+            devicesUpdated.push(list); //Insere cada dispostivo no novo Array de dispositivos
+        });
+        setDevices(devicesUpdated); //Altera o array antigo, com o array novo, garantindo o funcionamento do dropdown para todos os dispositivos
+        //alert(JSON.stringify(devicesUpdated));
+
+
+        //alert(key);
+        //let expand = !expanded; //Pegamos o oposto do valor atual de expanded, para abrir se estiver fechada, e fechar se estiver aberta
+        //setExpanded(expand); //Passamos o novo valor para a expanded
+        //setFrequencyCounterC(0);
+        //setFrequencyCounterD(0);
+        //setFrequencyCounterU(0);
     }
 
-    const teste = {
-        labels: [
-            "01:00",
-            "02:00",
-            "03:00"
-        ],
-        datasets: [
-            {
-                data: [0, 1, 2],
-                strokeWidth: 2
-            }
-        ]
+    async function getOcorrencias(searchKey) {
+        const params = {
+            keyDevice: searchKey
+        }
+        await axios.post('http://192.168.25.163:5000/temperatures_v3', params)
+            .then(response => {
+                //alert(JSON.stringify(response.data.ocorrencias));
+                //setOcorrencias(response.data.ocorrencias);
+                let horaRegistrada = [], dataRegistro = [], temperatura = [];
+
+                response.data.ocorrencias.forEach((ocorr) => {
+                    horaRegistrada.push(ocorr.horaRegistrada + " " + ocorr.dataRegistro);
+                    temperatura.push(ocorr.temperatura);
+                });
+
+                let graphicData = {
+                    labels: horaRegistrada,
+                    datasets: [{ data: temperatura, strokeWidth: 2 }]
+                }
+                //alert(JSON.stringify(graphicData));
+                setOcorrencias(graphicData);
+                getFrequency(response.data.frequenciaDoDispositivo);
+                changeLayout(searchKey, graphicData);
+            })
+            .catch(error => {
+                alert("Erro na requisição getOcorrencias: " + JSON.stringify(error))
+            });
     }
+
+    useEffect(() => {
+        getDevices();
+    }, [])
+
+    /*return (
+        <View style={{ alignItems: "center", justifyContent: "center" }}>
+            <Text style={{ textAlign: "center" }}>Devices: {JSON.stringify(devices)}</Text>
+            <TouchableOpacity
+                style={{ height: 40, width: 120, backgroundColor: '#000', borderRadius: 25, alignItems: "center", justifyContent: "center", marginTop: 25, marginBottom: 25 }}
+                onPress={() => { getOcorrencias(1) }}
+            >
+                <Text style={{ color: '#FFF' }}>GetOcorrencias</Text>
+            </TouchableOpacity>
+
+            <Text>Ocorrências: {JSON.stringify(ocorrencias)}</Text>
+
+            <Text>Última Temepratura Registrada: {JSON.stringify(ultimaTemperatura)}</Text>
+            <Text>Hora Registrada: {JSON.stringify(horaRegistrada)}</Text>
+            <Text>Diferença de Temperatura: {JSON.stringify(diferencaTemperatura)}</Text>
+
+            <Text>Frequencia C: {JSON.stringify(frequencyCounterC)}</Text>
+            <Text>Frequencia D: {JSON.stringify(frequencyCounterD)}</Text>
+            <Text>Frequencia U: {JSON.stringify(frequencyCounterU)}</Text>
+
+        </View>
+    );*/
 
     return (
         // Container de toda a aplicação
@@ -282,7 +311,7 @@ export default function Home() {
                             // Componente que será renderizado, para cada dispositivo cadastrado
                             <View style={{ alignItems: "center" }}>
                                 {/* Os dispositivos serão exibidos em botões */}
-                                <TouchableOpacity style={{ height: 50, width: 0.95 * width, flexDirection: "row", borderTopLeftRadius: 5, borderTopRightRadius: 5, borderBottomRightRadius: item.expanded ? 0 : 5, borderBottomLeftRadius: item.expanded ? 0 : 5, backgroundColor: '#FFF', shadowColor: '#000', elevation: 10 }} onPress={() => { changeLayout(item.key) }}>
+                                <TouchableOpacity style={{ height: 50, width: 0.95 * width, flexDirection: "row", borderTopLeftRadius: 5, borderTopRightRadius: 5, borderBottomRightRadius: item.expanded ? 0 : 5, borderBottomLeftRadius: item.expanded ? 0 : 5, backgroundColor: '#FFF', shadowColor: '#000', elevation: 10 }} onPress={() => { getOcorrencias(item.key) }}>
                                     {/* Os botões terão um Gradient também */}
                                     <LinearGradient
                                         start={{ x: 0, y: 0 }}
@@ -305,8 +334,8 @@ export default function Home() {
                                 {/* Container para exibir os detalhes do dispositivo quando o usuário clicar sobre seu botão */}
                                 <View style={{ height: item.expanded ? 750 : 0, width: 0.95 * width, overflow: "hidden", marginBottom: 15, backgroundColor: '#FFF' }}>
                                     <Text style={{ paddingLeft: 15, paddingTop: 15 }}>Nome do dispositivo: <Text style={{ fontWeight: "bold" }}>{item.name}</Text></Text>
-                                    <Text style={{ paddingLeft: 15 }}>Local: <Text style={{ fontWeight: "bold" }}>Sala de reunião</Text> </Text>
-                                    <Text style={{ paddingLeft: 15 }}>Última Temperatura Registarda: <Text style={{ fontWeight: "bold" }}>20°</Text></Text>
+                                    <Text style={{ paddingLeft: 15 }}>Local: <Text style={{ fontWeight: "bold" }}>{item.local}</Text> </Text>
+                                    <Text style={{ paddingLeft: 15 }}>Última Temperatura Registarda: <Text style={{ fontWeight: "bold" }}>{ultimaTemperatura}°C</Text></Text>
                                     <View style={{ flexDirection: "row", width: 0.95 * width, alignItems: "center", justifyContent: "flex-end", padding: 20 }}>
                                         <Icon name="lightbulb" size={20}></Icon>
                                         {/* O Switch abaixo funcionará apenas para exibir o estado da luz (Apagada/Ligada), não podendo ser alterado pelo usuário */}
@@ -322,21 +351,7 @@ export default function Home() {
                                     {/* Gráfico para exemplificar design */}
                                     <View style={{ width: '90%', height: 400, marginLeft: '5%', alignItems: "center", justifyContent: "center", borderWidth: 0.2, borderColor: '#777' }}>
                                         <ScrollView horizontal={true} style={{ height: 220 }} contentContainerStyle={{ borderWidth: 1 }}>
-                                            {teste ?
-                                                (
-                                                    <>
-                                                        {item.dadosDispositivo}
-                                                    </>
-                                                )
-                                                :
-                                                (
-                                                    <>
-                                                        <Text>Não há dados registrados</Text>
-                                                    </>
-
-
-                                                )
-                                            }
+                                            {item.chartComponent}
                                         </ScrollView>
                                     </View>
 
@@ -413,14 +428,13 @@ export default function Home() {
                     ></FlatList>
                 </ScrollView>
                 <View style={{ height: '7.5%', alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ color: '#fff' }}>|D1 - D2| = <Text style={{ fontWeight: 'bold' }}>14</Text></Text>
-                    <Text style={{ color: '#fff' }}>Última atualização às: <Text style={{ fontWeight: 'bold' }}>14:00</Text></Text>
+                    <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <Icon name="not-equal" color={"#FFF"} size={16}></Icon>
+                        <Text style={{ color: '#fff', marginLeft: 5 }}><Text style={{ fontWeight: "bold" }}>{diferencaTemperatura}°C</Text></Text>
+                    </View>
+                    <Text style={{ color: '#fff' }}>Última atualização às: <Text style={{ fontWeight: 'bold' }}>{horaRegistrada}({ultimaTemperatura}°C)</Text></Text>
                 </View>
             </LinearGradient>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-
-});
