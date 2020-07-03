@@ -29,12 +29,12 @@ SEL_FREQ_DISP = "SELECT vl_frequencia_captura FROM tb_dispositivo"
 
 #Comandos sql insert
 INS_OC = """INSERT INTO tb_ocorrencia(id_dispositivo,vl_temperatura,vl_luminosidade,dt_ocorrencia,
-                                              hr_ocorrencia,st_luminosidade)
-            VALUES({0},{1},{2},CURRENT_DATE,CURRENT_TIME,{3})"""
+                hr_ocorrencia,st_luminosidade)
+VALUES({0},{1},{2},CURRENT_DATE,CURRENT_TIME,{3})"""
             
 #Comandos sql update
 UPD_FREQ_DISP = """UPDATE tb_dispositivo
-                   SET vl_frequencia_captura = {}"""
+SET vl_frequencia_captura = {}"""
 
 #Cláusulas
 WH = "\nWHERE "
@@ -43,8 +43,8 @@ OC = "id_ocorrencia = {}"
 NO_DISP = "no_dispositivo = {}"
 ST_DISP = "st_ativo = {}"
 ULT_24_HORAS = """ TIMESTAMP(dt_ocorrencia,hr_ocorrencia) BETWEEN 
-                   TIMESTAMP(CURRENT_DATE - 1,CURRENT_TIME) AND 
-                   TIMESTAMP(CURRENT_DATE,CURRENT_TIME)"""
+       TIMESTAMP(CURRENT_DATE - 1,CURRENT_TIME) AND 
+       TIMESTAMP(CURRENT_DATE,CURRENT_TIME)"""
 WH_ULT_24_HORAS = WH + ULT_24_HORAS
 WH_DISP = WH + DISP
 WH_OC = WH + OC
@@ -52,7 +52,8 @@ WH_NO_DISP = WH+NO_DISP
 WH_ST_DISP = WH+ST_DISP
 MAX_OC_DISP = "id_ocorrencia = ("+SEL_MAX_OC+"\n"+WH_DISP+")"
 WH_MAX_OC_DISP = WH + "id_ocorrencia = ("+SEL_MAX_OC+"\n"+WH_DISP+")"
-OD_BY_OC = "\nORDER BY id_ocorrencia"
+OD_BY_OC_DESC = "\nORDER BY id_ocorrencia DESC"
+LIMIT = "\nLIMIT {}"
 
 #Operadores
 AND = " AND"
@@ -60,12 +61,10 @@ OR = " OR"
 
 #Comandos específicos completos
 SEL_DISP_ULT_TEMP = """SELECT D.*,O.st_luminosidade
-                       FROM tb_dispositivo D
-                       INNER JOIN tb_ocorrencia O ON D.id_dispositivo = O.id_dispositivo
-                       WHERE O.id_ocorrencia = (SELECT MAX(id_ocorrencia)
-                                                FROM tb_ocorrencia
-                                                WHERE id_dispositivo = D.id_dispositivo)"""
-SEL_ULT_TEMP_HR = SEL_TEMP_HR_OC + WH + " id_ocorrencia = " + "(" + SEL_MAX_OC + ")" + AND + ULT_24_HORAS                                                
+FROM tb_dispositivo D
+INNER JOIN tb_ocorrencia O ON D.id_dispositivo = O.id_dispositivo"""+OD_BY_OC_DESC+LIMIT.format(1)
+
+SEL_ULT_TEMP_HR = SEL_TEMP_HR_OC + WH_ULT_24_HORAS + OD_BY_OC_DESC + LIMIT.format(1)                                             
 
 #Esta função é responsável pelo tratamento de erros do banco
 #   Parâmetros: um objeto mySql 'Error'.
