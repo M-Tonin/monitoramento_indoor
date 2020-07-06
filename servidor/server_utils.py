@@ -17,7 +17,15 @@ def callInsert (d, t, l):
 
 def callSendToTTN (client, device, downlink):
   downlink = hex (downlink)
-  downlink = codecs.encode (codecs.decode (downlink [2:], 'hex'), 'base64').decode ()
+
+  if len (downlink) % 2 == 1:
+    downlink = '0' + downlink [2:]
+  else:
+    downlink = downlink [2:]
+
+  downlink = codecs.encode (downlink)
+  downlink = codecs.encode (codecs.decode (downlink, 'hex'), 'base64').decode ()
+  
   client.send (device, downlink, port=1, conf=False, sched="replace")
 
 # convert received data from wifi device to proper temperature and lighting values
