@@ -5,11 +5,11 @@ import server_utils as util
 import ttn
 from flask import Flask, jsonify, request
 from flask_json import FlaskJSON, JsonError, json_response, as_json
-from flask_ngrok import run_with_ngrok
+#from flask_ngrok import run_with_ngrok
 
 # flask namespace
 app = Flask (__name__)
-run_with_ngrok (app)
+#run_with_ngrok (app)
 
 # ttn variables
 appId = 'monitoramento-indoor'
@@ -18,7 +18,7 @@ accessKey = 'ttn-account-v2.L0jlR9qu-OzefvHzRzBq6SjaA6jPx8gBPfdo-6aLg4c'
 # mysql variables
 host = 'localhost'
 user = 'root'
-password = ''
+password = '#IBTI@2019'
 database = 'db_indoor'
 
 freq = 0
@@ -61,7 +61,8 @@ def upWifi ():
   }
   freq = 0
 
-  return dataFreq
+  return jsonify(dataFreq)
+  #return dataFreq
 
 # first request upon launching application main page:
 #   id, name, localization, light status from each device
