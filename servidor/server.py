@@ -96,8 +96,12 @@ def temperatures ():
   resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_ALL_OCS, 
                                          sql.WH_DISP.format (data ['id_dispositivo']) + sql.AND + 
                                          sql.ULT_24_HORAS)
-  dict1 = json.dumps (dt.getOcorrenciaDict (resp1), indent = 4, separators = (", "," : "))
-  return util.answer (app, 200, dict1)
+  dict1 = json.dumps (dt.getOcorrenciaDict (resp1))
+  resp_freq = sql.dbSelectFromQuery (cursor, sql.SEL_FREQ_DISP, 
+                                             sql.WH_DISP.format (data ['id_dispositivo']))
+  dict_freq = json.dumps (dt.getFreqDispDict (resp_freq))
+  resp = json.dumps (dt.concatDicts ([dict1, dict_freq]), indent = 4, separators = (", "," : "))
+  return util.answer (app, 200, resp)
 
 # device frequency request
 @app.route ('/frequency')
