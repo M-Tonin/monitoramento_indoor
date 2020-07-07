@@ -24,11 +24,15 @@ class DiffTempHoraEnvio:
         self.horaRegistrada = hrReg
                 
 class OcorrenciasDict:
-    def __init__(self,ocs = []):
+    def __init__(self,ocs = None):
+        if ocs is None:
+            ocs = []
         self.ocorrencias = ocs
         
 class DispositivosDict:
-    def __init__(self,dps = []):
+    def __init__(self,dps = None):
+        if dps is None:
+            dps = []
         self.dispositivos = dps
         
 class UltTempDict:
