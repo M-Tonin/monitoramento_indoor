@@ -62,14 +62,14 @@ OR = " OR"
 #Comandos específicos completos
 SEL_DISP_ULT_LUM = """(SELECT D.*,O.st_luminosidade
 FROM tb_dispositivo D
-INNER JOIN tb_ocorrencia O ON D.id_dispositivo = O.id_dispositivo
+LEFT OUTER JOIN tb_ocorrencia O ON D.id_dispositivo = O.id_dispositivo
 WHERE D.id_dispositivo = {}
 ORDER BY O.id_ocorrencia DESC
 LIMIT 1)
 UNION ALL
 (SELECT D.*,O.st_luminosidade
 FROM tb_dispositivo D
-INNER JOIN tb_ocorrencia O ON D.id_dispositivo = O.id_dispositivo
+LEFT OUTER JOIN tb_ocorrencia O ON D.id_dispositivo = O.id_dispositivo
 WHERE D.id_dispositivo = {}
 ORDER BY O.id_ocorrencia DESC
 LIMIT 1)"""
