@@ -90,7 +90,7 @@ def devices ():
   return util.answer (app, 200, resp)
 
 # all temperature readings from last 24h
-@app.route ('/temperatures')
+@app.route ('/temperatures', methods = ['GET',"POST"])
 def temperatures ():
   data = request.get_json ()
   resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_ALL_OCS, 
