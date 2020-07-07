@@ -13,10 +13,10 @@ class DispositivoEnvio:
         self.statusLuminosidade = stLum
         
 class OcorrenciaEnvio:
-    def __init__(self,vlTmp = None,hrReg = None,dtReg = None):
+    def __init__(self,vlTmp = None,dtReg = None, hrReg = None):
         self.temperatura = vlTmp
-        self.horaRegistrada = hrReg
         self.dataRegistro = dtReg
+        self.horaRegistrada = hrReg
         
 class DiffTempHoraEnvio:
     def __init__(self,ultTemp = None,hrReg = None):
