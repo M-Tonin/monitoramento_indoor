@@ -69,19 +69,19 @@ def upWifi ():
 #   temperature difference between both devices
 @app.route ('/devices')
 def devices ():
-  resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_DISP_ULT_TEMP, '')
+  idDisp1 = sql.dbSelectFromQuery (cursor, sql.SEL_MIN_DISP, 
+                                           sql.WH_ST_DISP.format ("'A'"))
+  idDisp2 = sql.dbSelectFromQuery (cursor, sql.SEL_MAX_DISP, 
+                                           sql.WH_ST_DISP.format ("'A'"))
+  resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_DISP_ULT_LUM.format(idDisp1[0][0],idDisp2[0][0]), '')
   dict1 = dt.getDispositivosDict (resp1)
   resp2 = sql.dbSelectFromQuery (cursor, sql.SEL_ULT_TEMP_HR, '')
   dict2 = dt.getUltTempDict (resp2)
-  idDisp1 = sql.dbSelectFromQuery (cursor, sql.SEL_MIN_DISP, 
-                                           sql.WH_ST_DISP.format ("'A'"))
-  idDIsp2 = sql.dbSelectFromQuery (cursor, sql.SEL_MAX_DISP, 
-                                           sql.WH_ST_DISP.format ("'A'"))
   resp3 = sql.dbSelectFromQueryUnion (cursor, [[sql.SEL_TEMP_HR_OC, 
                                                 sql.WH_MAX_OC_DISP.format (idDisp1 [0] [0]) + sql.AND + 
                                                 sql.ULT_24_HORAS],
                                                [sql.SEL_TEMP_HR_OC, 
-                                                sql.WH_MAX_OC_DISP.format (idDIsp2 [0] [0]) + sql.AND + 
+                                                sql.WH_MAX_OC_DISP.format (idDisp2 [0] [0]) + sql.AND + 
                                                 sql.ULT_24_HORAS]])
   dict3 = dt.getDiffTempDict (resp3)
 
