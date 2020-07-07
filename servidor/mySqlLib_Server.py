@@ -60,9 +60,19 @@ AND = " AND"
 OR = " OR" 
 
 #Comandos específicos completos
-SEL_DISP_ULT_TEMP = """SELECT D.*,O.st_luminosidade
+SEL_DISP_ULT_LUM = """(SELECT D.*,O.st_luminosidade
 FROM tb_dispositivo D
-INNER JOIN tb_ocorrencia O ON D.id_dispositivo = O.id_dispositivo"""+OD_BY_OC_DESC+LIMIT.format(1)
+INNER JOIN tb_ocorrencia O ON D.id_dispositivo = O.id_dispositivo
+WHERE D.id_dispositivo = {}
+ORDER BY O.id_ocorrencia DESC
+LIMIT 1)
+UNION ALL
+(SELECT D.*,O.st_luminosidade
+FROM tb_dispositivo D
+INNER JOIN tb_ocorrencia O ON D.id_dispositivo = O.id_dispositivo
+WHERE D.id_dispositivo = {}
+ORDER BY O.id_ocorrencia DESC
+LIMIT 1)"""
 
 SEL_ULT_TEMP_HR = SEL_TEMP_HR_OC + WH_ULT_24_HORAS + OD_BY_OC_DESC + LIMIT.format(1)                                             
 
