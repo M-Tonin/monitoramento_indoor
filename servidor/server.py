@@ -75,7 +75,7 @@ def devices ():
                                            sql.WH_ST_DISP.format ("'A'"))
   resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_DISP_ULT_LUM.format(idDisp1[0][0],idDisp2[0][0]), '')
   dict1 = dt.getDispositivosDict (resp1)
-  resp2 = sql.dbSelectFromQuery (cursor, sql.SEL_ULT_TEMP_HR, '')
+  resp2 = sql.dbSelectFromQuery (cursor, sql.SEL_ULT_TEMP_DT_HR, '')
   dict2 = dt.getUltTempDict (resp2)
   resp3 = sql.dbSelectFromQueryUnion (cursor, [[sql.SEL_TEMP_HR_OC, 
                                                 sql.WH_MAX_OC_DISP.format (idDisp1 [0] [0]) + sql.AND + 
