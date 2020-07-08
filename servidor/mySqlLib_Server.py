@@ -74,7 +74,7 @@ WHERE D.id_dispositivo = {}
 ORDER BY O.id_ocorrencia DESC
 LIMIT 1)"""
 
-SEL_ULT_TEMP_HR = SEL_TEMP_HR_OC + WH_ULT_24_HORAS + OD_BY_OC_DESC + LIMIT.format(1)                                             
+SEL_ULT_TEMP_DT_HR = SEL_TEMP_HR_DT_OC + WH_ULT_24_HORAS + OD_BY_OC_DESC + LIMIT.format(1)                                             
 
 #Esta função é responsável pelo tratamento de erros do banco
 #   Parâmetros: um objeto mySql 'Error'.
