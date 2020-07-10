@@ -21,7 +21,7 @@
   * Luminosidade
 * Atuador
   * Buzzer
-*Multiplexador CD4051
+* Multiplexador CD4051
  
 ---------------------------------
 ### Comunicação
