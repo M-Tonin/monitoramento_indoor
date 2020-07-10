@@ -108,7 +108,7 @@ def temperatures ():
 
   resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_ALL_OCS, 
                                          sql.WH_DISP.format (data ['id_dispositivo']) + sql.AND + 
-                                         sql.ULT_24_HORAS + "\nLIMIT 144")
+                                         sql.ULT_24_HORAS + "\nLIMIT 192")
   dict1 = (dt.getOcorrenciaDict (resp1))
   resp_freq = sql.dbSelectFromQuery (cursor, sql.SEL_FREQ_DISP, 
                                              sql.WH_DISP.format (data ['id_dispositivo']))
