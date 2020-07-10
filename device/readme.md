@@ -49,7 +49,7 @@ a níveis lógicos baixos.
 ---------------------------------
 * Sensor_Luz.ino e Sensor_Temp.ino 
   * Testes individuais de cada sensor
-* Teste_Mux 
+* Teste_Mux.ino 
   * Teste para o uso do multiplexador para o dispositivo com Wi-Fi  
 * ttn-abp-temp-luz-INT.ino 
   * Leitura e comunicação com o dispositivo LoRa
