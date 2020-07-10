@@ -169,7 +169,7 @@ uint16_t lux;
 uint8_t luxHIGH;
 uint8_t luxLOW;
 // Contantes auxiliáres
-unsigned long int intervalo = 10000;
+unsigned long int intervalo = 600000;
 unsigned long MillisAnterior = 0;
 
 
@@ -243,7 +243,7 @@ void loop ()
   //Caso algum downlink seja recebido
     if (downlink != 0)
     {
-      intervalo = downlink * 1000;
+      intervalo = downlink * 60000 - 1500;
       downlink = 0;
       tone (BUZZER, 1500);
       delay(500);
@@ -311,7 +311,7 @@ void mandatx() {
      //Caso algum downlink seja recebido
     if (downlink != 0)
     {
-      intervalo = downlink * 1000 - 1500;
+      intervalo = downlink * 60000 - 1500;
       downlink = 0;
       tone (BUZZER, 1500);
       delay(500);
