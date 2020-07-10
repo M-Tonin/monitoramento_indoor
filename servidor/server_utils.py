@@ -2,9 +2,13 @@ import codecs
 import mySqlLib_Server as sql
 import ttn
 
+# mysql connection to be received by the main program
 mysqlConn = None
-LIGHTING_THRESHOLD = 200
 
+# this value must be in sync with the database
+LIGHTING_THRESHOLD = 70
+
+# myqsl insert function
 # generate sql insert command from received telemetry data and submit to the database
 def callInsert (d, t, l):
   s = 0
@@ -15,6 +19,8 @@ def callInsert (d, t, l):
   sql.dbInsertFromQuery (mysqlConn.cursor (), sql.INS_OC.format (d, t, l, s), '')
   mysqlConn.commit ()
 
+# ttn downlink send function
+# automatically adjusts payload bytes in length and useful information and sends to ttn
 def callSendToTTN (client, device, downlink):
   downlink = hex (downlink)
 
@@ -42,21 +48,28 @@ def bytesToInt (b):
 # ttn uplink callback function
 # also automatically sends an insert onto the database with the received uplink
 def uplinkCallback (msg, client):
-  print ('Uplink received from: ', msg.dev_id)
-  print ('PAYLOAD: ' + str (msg))
+  temp = msg.payload_fields [1] [0 : -3]
+  lux = msg.payload_fields [0] [0 : -3]
 
-  callInsert (1, float (msg.payload_fields [1] [0 : -3]), int (msg.payload_fields [0] [0 : -3]))
+  print (f'Uplink received from: {msg.dev_id}.')
+  print (f'PAYLOAD: {lux} Lux, {temp} °C.\n')
+
+  callInsert (1, float (temp), int (lux))
 
 # ttn downlink callback function
 def downlinkCallback (mid, client):
-  print ('Downlink sent. ID: ' + str (mid))
+  print (f'Downlink sent to TTN. ID: {str (mid)}.')
 
+# mqtt client setup
+# receives the connection to ttn
+# mounts all callbacks according to this library and returns the mqtt client data
 def mqttClientSetup (handler):
   client = handler.data ()
   client.set_uplink_callback (uplinkCallback)
   client.set_downlink_callback (downlinkCallback)
   return client
 
+# http answer builder function
 def answer (app, http_code, json):
   responseServer = app.response_class (
     response = json,
