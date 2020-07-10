@@ -1,6 +1,6 @@
-import mySqlLib_Server as sql
 import dictTreatLib_Server as dt
 import json
+import mySqlLib_Server as sql
 import server_utils as util
 import ttn
 from flask import Flask, jsonify, request
@@ -21,9 +21,10 @@ user = 'root'
 password = '#IBTI@2019'
 database = 'db_indoor'
 
+# downlink frequency control
 freq = 0
 
-# connect to ttn iot application
+# connect to ttn iot platform
 try:
   handler = ttn.HandlerClient (appId, accessKey)
   mqttClient = util.mqttClientSetup (handler)
@@ -51,11 +52,18 @@ print ('Listening...')
 @app.route ('/upWifi')
 def upWifi ():
   global freq
-  temp = float (request.args.get ('temp')) / 10
-  lux = int (request.args.get ('lux'))
 
+  try:
+    temp = float (request.args.get ('temp')) / 10
+    lux = int (request.args.get ('lux'))
+  except (KeyError, TypeError, ValueError):
+    resp = jsonify (success = False)
+    return util.answer (app, 204, resp)
+
+  print ('Uplink received from: WiFi.')
+  print (f'PAYLOAD: {str (lux)} Lux, {str (temp)} °C.\n\n')
   util.callInsert (2, temp, lux)
-  print (f'FREQ = {freq}')
+ 
   dataFreq = {
     'freq': freq
   }
@@ -74,7 +82,7 @@ def devices ():
                                            sql.WH_ST_DISP.format ("'A'"))
   idDisp2 = sql.dbSelectFromQuery (cursor, sql.SEL_MAX_DISP, 
                                            sql.WH_ST_DISP.format ("'A'"))
-  resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_DISP_ULT_LUM.format(idDisp1[0][0],idDisp2[0][0]), '')
+  resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_DISP_ULT_LUM.format (idDisp1 [0] [0], idDisp2 [0] [0]), '')
   dict1 = dt.getDispositivosDict (resp1)
   resp2 = sql.dbSelectFromQuery (cursor, sql.SEL_ULT_TEMP_DT_HR, '')
   dict2 = dt.getUltTempDict (resp2)
@@ -92,10 +100,15 @@ def devices ():
 # all temperature readings from last 24h
 @app.route ('/temperatures', methods = ['GET',"POST"])
 def temperatures ():
-  data = request.get_json ()
+  try:
+    data = request.get_json ()
+  except (KeyError, TypeError, ValueError):
+    resp = jsonify (success = False)
+    return util.answer (app, 204, resp)
+
   resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_ALL_OCS, 
                                          sql.WH_DISP.format (data ['id_dispositivo']) + sql.AND + 
-                                         sql.ULT_24_HORAS)
+                                         sql.ULT_24_HORAS + "\nLIMIT 192")
   dict1 = (dt.getOcorrenciaDict (resp1))
   resp_freq = sql.dbSelectFromQuery (cursor, sql.SEL_FREQ_DISP, 
                                              sql.WH_DISP.format (data ['id_dispositivo']))
@@ -107,7 +120,12 @@ def temperatures ():
 # device frequency request
 @app.route ('/frequency')
 def frequency ():
-  data = request.get_json ()
+  try:
+    data = request.get_json ()
+  except (KeyError, TypeError, ValueError):
+    resp = jsonify (success = False)
+    return util.answer (app, 204, resp)
+
   resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_FREQ_DISP, 
                                          sql.WH_DISP.format (data ['id_dispositivo']))
 
@@ -118,14 +136,15 @@ def frequency ():
 @app.route ('/updateFreq', methods = ['GET',"POST"])
 def updateFreq ():
   global freq
-  data = request.get_json ()
 
   try:
-    key = data ['id_dispositivo']
-    frequencia = data ['nova_frequencia']
+    data = request.get_json ()
   except (KeyError, TypeError, ValueError):
     resp = jsonify (success = False)
-    return util.answer (app, 444, resp)
+    return util.answer (app, 204, resp)
+
+  key = data ['id_dispositivo']
+  frequencia = data ['nova_frequencia']
 
   if key == 1 and frequencia > 0:
     util.callSendToTTN (mqttClient, 'dispositivo1', frequencia)
@@ -133,17 +152,14 @@ def updateFreq ():
     freq = frequencia
 
   if (sql.dbExecQuery (cursor, sql.UPD_FREQ_DISP.format (frequencia),
-                            sql.WH_DISP.format (key))):  
+                               sql.WH_DISP.format (key))):  
     resp = jsonify (success = True)
     util.mysqlConn.commit ()
+    print ('Downlink sent to WiFi device.')
   else:
     resp = jsonify (success = False)
   
   return resp
-
-@app.route ('/')
-def debug ():
-  return 'DEBUG-'
 
 # online
 if __name__ == '__main__':
