@@ -17,7 +17,7 @@ const char *password = "KHA4MTLC678";
 //const uint16_t port = 12345;
 //const char * host = "192.168.2.196";
 const uint16_t port = 80;
-const char * host = "77d31787aa19.ngrok.io";
+const char * host = "9d51be472232.ngrok.io";
 
 static uint8_t mydata[TAMbytes];
 //int mydata[TAMbytes];
@@ -147,7 +147,7 @@ void loop()
 
       }
 }
-    Serial.println(s_data); 
+    //Serial.println(s_data); 
     char json[15];
     s_data.toCharArray(json, 15);
     deserializeJson(jsonDocument,json);
@@ -159,7 +159,7 @@ void loop()
     //Serial.println(downlink, DEC);
     if (freq > 0)
     {
-      intervalo = freq * 1000;
+      intervalo = freq * 60000 - 1500;
       tone (BUZZER, 1500);
       Serial.println("Recebeu Downlink!!");
       delay(500);
