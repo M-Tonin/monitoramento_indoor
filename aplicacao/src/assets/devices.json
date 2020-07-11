@@ -1,0 +1,22 @@
+{
+    "dispositivos": [
+        {
+            "idDispositivo": 1,
+            "localDispositivo": "Sala Principal",
+            "nomeDispositivo": "IBTI 1",
+            "statusLuminosidade": 1
+        },
+        {
+            "idDispositivo": 2,
+            "localDispositivo": "Sala de Reuniões",
+            "nomeDispositivo": "IBTI 2",
+            "statusLuminosidade": 0
+        }
+    ],
+    "ultTempHoraRegistrada": {
+        "ultimaTemperatura": 24.3,
+        "horaRegistrada": "12:23:43"
+    },
+    "diferencaTemperatura": 2.2,
+    "diferencaMin": 1
+}

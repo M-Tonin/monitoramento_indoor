@@ -1,0 +1,28 @@
+//Enviaremos: 
+
+{
+    "keyDevice": 1
+}
+
+//Esperamos receber:
+
+{
+    "ocorrencias": [
+        {
+            "temperatura": 26.5,
+            "horaRegistrada": "12:18:43",
+            "dataRegistro": "2020-06-26"
+        },
+        {
+            "temperatura": 24.8,
+            "horaRegistrada": "12:21:43",
+            "dataRegistro": "2020-06-26"
+        },
+        {
+            "temperatura": 24.3,
+            "horaRegistrada": "12:23:43",
+            "dataRegistro": "2020-06-26"
+        }
+    ],
+    "frequenciaDoDispositivo": 10.0
+}
