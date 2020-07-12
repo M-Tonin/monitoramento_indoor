@@ -38,7 +38,7 @@ export default function Home({ navigation }) {
 
     function testeConnection() {
         try {
-            axios.get('http://a65175939246.ngrok.io/devices')
+            axios.get('http://db25960f6cff.ngrok.io/devices')
                 .then(response => {
                     alert(JSON.stringify(response.data));
                 })
@@ -52,7 +52,7 @@ export default function Home({ navigation }) {
 
     async function getDevices() {
         setDevices([]);
-        await axios.get('http://a65175939246.ngrok.io/devices')
+        await axios.get('http://db25960f6cff.ngrok.io/devices')
             .then(response => {
                 //alert(JSON.stringify(response.data));
                 setTemperatura(response.data.ultimaTemperatura.temperatura);
@@ -181,7 +181,7 @@ export default function Home({ navigation }) {
 
         }
         //requisição de atualização
-        axios.post("http://a65175939246.ngrok.io/updateFreq", params).then(response => {
+        axios.post("http://db25960f6cff.ngrok.io/updateFreq", params).then(response => {
             if (response.data.success) {
                 alert('Frequência alterada com sucesso!');
             }
@@ -272,7 +272,7 @@ export default function Home({ navigation }) {
                 }
                 else {
                     setModalVisible(true);
-                    await axios.post('http://a65175939246.ngrok.io/temperatures', params)
+                    await axios.post('http://db25960f6cff.ngrok.io/temperatures', params)
                         .then(response => {
                             //alert(JSON.stringify(response.data));
 
