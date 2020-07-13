@@ -343,6 +343,9 @@ void mandatx() {
     Serial.print("\n");
 
     //Loop que atesta que a transmissão foi completada
+    FirstTX = true;
+    do_send(&sendjob);
+    
     while (entregou != true) {
       os_runloop_once();
     }
