@@ -18,7 +18,8 @@
   * Protocolo MQTT.
 -------------
 ## Pontes de comunicação do servidor:
-<img src="/Imagens/pontes de conexão do servidor.png" width="612" height="480">
+<img src="/Imagens/pontes de conexão do servidor.png" width="612" height="480"/>
+
 -------------
 ## Arquivos desenvolvidos pela equipe:
 * server.py
