@@ -23,8 +23,7 @@
 ---------------------------------
 ### Circuitos
 ---------------------------------
- 
-![alt text](https://raw.githubusercontent.com/M-Tonin/monitoramento_indoor/tree/master/device/to/EsquemaLoRa_bb1.png)
+ ![Optional Text](../master/device/EsquemaLoRa_bb1.png)
 ---------------------------------
 ### Sensores
 ---------------------------------
