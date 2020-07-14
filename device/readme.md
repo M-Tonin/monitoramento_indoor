@@ -23,7 +23,7 @@
 ---------------------------------
 ### Circuitos
 ---------------------------------
- ![Optional Text](../master/device/EsquemaLoRa_bb1.png)
+ ![Optional Text](../device/EsquemaLoRa_bb1.png)
 ---------------------------------
 ### Sensores
 ---------------------------------
