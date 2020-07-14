@@ -25,8 +25,10 @@
 ---------------------------------
 <p align="center">
   <img src="EsquemaLoRa_bb1.png" width="350" title="Circuito LoRa">
-  <img src="EsquemaWiFi_bb.png" width="350" alt="Circuito WiFi">
 </p>
+<p align="center">
+  <img src="EsquemaWiFi_bb.png" width="350" title="Circuito WiFi">
+<p align="center">
 
 ---------------------------------
 ### Sensores
