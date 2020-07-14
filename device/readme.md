@@ -23,11 +23,11 @@
 ---------------------------------
 ### Circuitos
 ---------------------------------
- ![Optional Text](../device/EsquemaLoRa_bb1.png)
 <p align="center">
-  <img src="EsquemaLoRa_bb1.png" width="350" title="hover text">
-  <img src="EsquemaWiFi_bb.png" width="350" alt="accessibility text">
+  <img src="EsquemaLoRa_bb1.png" width="350" title="Circuito LoRa">
+  <img src="EsquemaWiFi_bb.png" width="350" alt="Circuito WiFi">
 </p>
+
 ---------------------------------
 ### Sensores
 ---------------------------------
