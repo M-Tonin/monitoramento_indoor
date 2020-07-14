@@ -1,11 +1,15 @@
-  * ESP8266
+* MCU
+  * Arduino
+  * NodeMCU v3
 * Módulo LoRa SX1276
+* Módulo WiFi ESP8266 (embutido no NodeMCU v3)
 * Sensores 
   * Temperatura
   * Luminosidade
 * Atuador
   * Buzzer
 * Multiplexador CD4051
+* Botão para envio imediato de dado
 
 ---------------------------------
 ### Comunicação
@@ -43,7 +47,7 @@ a níveis lógicos baixos.
 * ttn-abp-temp-luz-INT.ino 
   * Leitura e comunicação com o dispositivo LoRa
 * wifi-temp-luz_INT_GET.ino 
-
+  * Leitura e comunicação com o dispositivo Wifi utilizando o método GET do protocolo HTTP
 ---------------------------------
 ### Links auxiliares
 ---------------------------------
@@ -51,5 +55,6 @@ a níveis lógicos baixos.
   * https://github.com/matthijskooijman/arduino-lmic
 * Biblioteca ArduinoJSON utilizada
   * https://arduinojson.org/
-* Efeito Boucing de chaves mecânicas
+* Efeito Bouncing de chaves mecânicas
   * https://www.embarcados.com.br/leitura-de-chaves-debounce/#:~:text=Apesar%20do%20funcionamento%20aparentemente%20simples,figura%202%20apresenta%20esse%20efeito
+
