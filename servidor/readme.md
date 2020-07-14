@@ -17,6 +17,9 @@
 * TTN;
   * Protocolo MQTT.
 -------------
+## Pontes de comunicação do servidor:
+<img src="/Imagens/pontes de conexão do servidor.png" width="612" height="480">
+-------------
 ## Arquivos desenvolvidos pela equipe:
 * server.py
   * Programa servidor em si, que realiza todas as pontes de comunicação entre os dispositivos, o aplicativo e o banco de dados.
