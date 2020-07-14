@@ -11,13 +11,13 @@
 //const char* ssid = "yourNetworkName";
 //const char* password =  "yourNetworkPass";
 
-const char *ssid = "PANDORA";  //ENTER YOUR WIFI SETTINGS
-const char *password = "KHA4MTLC678";
+const char *ssid = "Inst Brasilia de Tec e Inov 2G";  //ENTER YOUR WIFI SETTINGS
+const char *password = "#ibti@2019";
  
 //const uint16_t port = 12345;
 //const char * host = "192.168.2.196";
-const uint16_t port = 80;
-const char * host = "9d51be472232.ngrok.io";
+const uint16_t port = 5000;
+const char * host = "192.168.2.211";
 
 static uint8_t mydata[TAMbytes];
 //int mydata[TAMbytes];
