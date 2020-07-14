@@ -24,6 +24,7 @@
 ### Circuitos
 ---------------------------------
 <p align="center">
+* Circuito LoRa
   <img src="EsquemaLoRa_bb1.png" width="350" title="Circuito LoRa">
 </p>
 <p align="center">
