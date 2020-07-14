@@ -20,7 +20,11 @@
 * 1 dispositivo para cada tecnologia e vice e versa
   * LoRa;
   * WiFi;
+---------------------------------
+### Circuitos
+---------------------------------
  
+![alt text](https://raw.githubusercontent.com/M-Tonin/monitoramento_indoor/blob/master/device/to/EsquemaLoRa_bb1.png)
 ---------------------------------
 ### Sensores
 ---------------------------------
@@ -39,7 +43,6 @@ a níveis lógicos baixos.
 * Para uma futura melhoria, pensa-se em recolher os dados pelo arduino e enviá-los pelo ESP8266. (Possível uso de SPI).
 * Por algum motivo ainda desconhecido, existe uma variação de +- 3 °C na leitura do sensor de temperatura usando apenas o ESP8266. Usando o Arduino, a leitura fica mais estável, porém ainda está diferindo de 3°C do sensor de temperatura do projeto LoRa.
 * Foi percebido que o arduino mapeia os valores de suas portas analógicas entre um valor de 0 e 1023. Porém, o ESP8266 mapeia o valor de sua porta analógica entre um valor de 0 a 255, ou seja, tem-se muito menos precisão com a porta analógica do ESP8266 e este é o motivo mais plausível para a problema anterior.
- 
 ---------------------------------
 ### Arquivos
 ---------------------------------
