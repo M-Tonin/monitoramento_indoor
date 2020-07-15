@@ -21,9 +21,6 @@ user = 'root'
 password = '#IBTI@2019'
 database = 'db_indoor'
 
-# downlink frequency control
-freq = 0
-
 # connect to ttn iot platform
 try:
   handler = ttn.HandlerClient (appId, accessKey)
@@ -51,8 +48,6 @@ print ('Listening...')
 # uplink received from wifi device
 @app.route ('/upWifi')
 def upWifi ():
-  global freq
-
   try:
     temp = float (request.args.get ('temp')) / 10
     lux = int (request.args.get ('lux'))
@@ -64,13 +59,16 @@ def upWifi ():
   print (f'PAYLOAD: {str (lux)} Lux, {str (temp)} °C.\n\n')
   util.callInsert (2, temp, lux)
  
-  dataFreq = {
-    'freq': freq
-  }
-  freq = 0
+  if (util.freq2 != 0):
+    util.callUpdateFreq (2)
+    print ('WiFi device frequency has been updated on the database.')
 
-  return jsonify(dataFreq)
-  #return dataFreq
+  dataFreq = {
+    'freq': util.freq2
+  }
+  util.freq2 = 0
+
+  return jsonify (dataFreq)
 
 # first request upon launching application main page:
 #   id, name, localization, light status from each device
@@ -135,8 +133,6 @@ def frequency ():
 # change device frequency
 @app.route ('/updateFreq', methods = ['GET',"POST"])
 def updateFreq ():
-  global freq
-
   try:
     data = request.get_json ()
   except (KeyError, TypeError, ValueError):
@@ -147,19 +143,14 @@ def updateFreq ():
   frequencia = data ['nova_frequencia']
 
   if key == 1 and frequencia > 0:
+    util.freq1 = frequencia
     util.callSendToTTN (mqttClient, 'dispositivo1', frequencia)
   else:
-    freq = frequencia
+    util.freq2 = frequencia
+    print ('Downlink scheduled to WiFi device.')
 
-  if (sql.dbExecQuery (cursor, sql.UPD_FREQ_DISP.format (frequencia),
-                               sql.WH_DISP.format (key))):  
-    resp = jsonify (success = True)
-    util.mysqlConn.commit ()
-    print ('Downlink sent to WiFi device.')
-  else:
-    resp = jsonify (success = False)
-  
-  return resp
+  resp = jsonify (success = True)
+  return util.answer (app, 200, resp)
 
 # online
 if __name__ == '__main__':

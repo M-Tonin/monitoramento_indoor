@@ -8,6 +8,10 @@ mysqlConn = None
 # this value must be in sync with the database
 LIGHTING_THRESHOLD = 70
 
+# downlink frequency control per device
+freq1 = 0
+freq2 = 0
+
 # myqsl insert function
 # generate sql insert command from received telemetry data and submit to the database
 def callInsert (d, t, l):
@@ -34,6 +38,18 @@ def callSendToTTN (client, device, downlink):
   
   client.send (device, downlink, port=1, conf=False, sched="replace")
 
+# update device frequency on database on downlink send
+def callUpdateFreq (key):
+  if key == 1:
+    f = freq1
+    util.freq1 = 0
+  else:
+    f = freq2
+    util.freq2 = 0
+
+  sql.dbExecQuery (mysqlConn.cursor (), sql.UPD_FREQ_DISP.format (f), sql.WH_DISP.format (key))
+  mysqlConn.commit ()
+
 # convert received data from wifi device to proper temperature and lighting values
 # DEPRECATED-
 def bytesToInt (b):
@@ -56,9 +72,13 @@ def uplinkCallback (msg, client):
 
   callInsert (1, float (temp), int (lux))
 
+  if (freq1 != 0):
+    callUpdateFreq (1)
+    print ('LoRa device frequency has been updated on the database.')
+
 # ttn downlink callback function
 def downlinkCallback (mid, client):
-  print (f'Downlink sent to TTN. ID: {str (mid)}.')
+  print (f'Downlink scheduled to TTN. ID: {str (mid)}.')
 
 # mqtt client setup
 # receives the connection to ttn
