@@ -19,7 +19,9 @@
 ---------------------------------
 * 1 dispositivo para cada tecnologia e vice e versa
   * LoRa;
+    * Enviando e recebendo dados pela The Things Network (TTN). Enviando dados em  hexadecimal e recebendo downlink pela TTN.
   * WiFi;
+    * Enviando para o servidor local com GET do protocolo HTTP e recebendo downlink em forma JSON.
 ---------------------------------
 ### Circuitos
 ---------------------------------
