@@ -72,7 +72,7 @@ a níveis lógicos baixos.
 * Biblioteca ArduinoJSON utilizada
   * https://arduinojson.org/
 * Lista de Preços por dispositivo
-  * https://docs.google.com/spreadsheets/d/1pM4eGBOEPLGG6gU031m8RdJa_D0bD2Fj0DTeQeB8DW0/edit#gid=0
+  * https://docs.google.com/spreadsheets/d/1pM4eGBOEPLGG6gU031m8RdJa_D0bD2Fj0DTeQeB8DW0/edit?usp=sharing
 * Efeito Bouncing de chaves mecânicas
   * https://www.embarcados.com.br/leitura-de-chaves-debounce/#:~:text=Apesar%20do%20funcionamento%20aparentemente%20simples,figura%202%20apresenta%20esse%20efeito
 
