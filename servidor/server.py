@@ -18,8 +18,7 @@ accessKey = 'ttn-account-v2.L0jlR9qu-OzefvHzRzBq6SjaA6jPx8gBPfdo-6aLg4c'
 # mysql variables
 host = 'localhost'
 user = 'root'
-password = ''
-#password = '#IBTI@2019'
+password = '#IBTI@2019'
 database = 'db_indoor'
 
 # connect to ttn iot platform
@@ -152,4 +151,4 @@ def updateFreq ():
 
 # online
 if __name__ == '__main__':
-  app.run ()
+  app.run (host = '0.0.0.0')

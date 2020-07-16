@@ -40,12 +40,15 @@ def callSendToTTN (client, device, downlink):
 
 # update device frequency on database on downlink send
 def callUpdateFreq (key):
+  global freq1
+  global freq2
+  
   if key == 1:
     f = freq1
-    util.freq1 = 0
+    freq1 = 0
   else:
     f = freq2
-    util.freq2 = 0
+    freq2 = 0
 
   sql.dbExecQuery (mysqlConn.cursor (), sql.UPD_FREQ_DISP.format (f), sql.WH_DISP.format (key))
   mysqlConn.commit ()
@@ -72,7 +75,7 @@ def uplinkCallback (msg, client):
 
   callInsert (1, float (temp), int (lux))
 
-  if (freq1 != 0):
+  if freq1 != 0:
     callUpdateFreq (1)
     print ('LoRa device frequency has been updated on the database.')
 
