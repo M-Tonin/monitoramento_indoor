@@ -18,7 +18,8 @@ accessKey = 'ttn-account-v2.L0jlR9qu-OzefvHzRzBq6SjaA6jPx8gBPfdo-6aLg4c'
 # mysql variables
 host = 'localhost'
 user = 'root'
-password = '#IBTI@2019'
+password = ''
+#password = '#IBTI@2019'
 database = 'db_indoor'
 
 # connect to ttn iot platform
@@ -52,8 +53,7 @@ def upWifi ():
     temp = float (request.args.get ('temp')) / 10
     lux = int (request.args.get ('lux'))
   except (KeyError, TypeError, ValueError):
-    resp = jsonify (success = False)
-    return util.answer (app, 204, resp)
+    return jsonify (success = False)
 
   print ('Uplink received from: WiFi.')
   print (f'PAYLOAD: {str (lux)} Lux, {str (temp)} °C.\n\n')
@@ -121,8 +121,7 @@ def frequency ():
   try:
     data = request.get_json ()
   except (KeyError, TypeError, ValueError):
-    resp = jsonify (success = False)
-    return util.answer (app, 204, resp)
+    return jsonify (success = False)
 
   resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_FREQ_DISP, 
                                          sql.WH_DISP.format (data ['id_dispositivo']))
@@ -149,8 +148,7 @@ def updateFreq ():
     util.freq2 = frequencia
     print ('Downlink scheduled to WiFi device.')
 
-  resp = jsonify (success = True)
-  return util.answer (app, 200, resp)
+  return jsonify (success = True)
 
 # online
 if __name__ == '__main__':
