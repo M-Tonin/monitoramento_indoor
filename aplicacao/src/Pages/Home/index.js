@@ -38,7 +38,7 @@ export default function Home({ navigation }) {
 
     function testeConnection() {
         try {
-            axios.get('http://db25960f6cff.ngrok.io/devices')
+            axios.get('http://6fdc62761fd3.ngrok.io/devices')
                 .then(response => {
                     alert(JSON.stringify(response.data));
                 })
@@ -52,7 +52,7 @@ export default function Home({ navigation }) {
 
     async function getDevices() {
         setDevices([]);
-        await axios.get('http://db25960f6cff.ngrok.io/devices')
+        await axios.get('http://6fdc62761fd3.ngrok.io/devices')
             .then(response => {
                 //alert(JSON.stringify(response.data));
                 setTemperatura(response.data.ultimaTemperatura.temperatura);
@@ -78,7 +78,8 @@ export default function Home({ navigation }) {
                         local: disp.localDispositivo,
                         expanded: false,
                         lightState: disp.statusLuminosidade == 1 ? true : false,
-                        chartComponent: []
+                        chartComponent: [],
+                        latestTemp: 0
                     }
                     setDevices(oldArray => [...oldArray, list]);
                 })
@@ -181,7 +182,7 @@ export default function Home({ navigation }) {
 
         }
         //requisição de atualização
-        axios.post("http://db25960f6cff.ngrok.io/updateFreq", params).then(response => {
+        axios.post("http://6fdc62761fd3.ngrok.io/updateFreq", params).then(response => {
             if (response.data.success) {
                 alert('Frequência alterada com sucesso!');
             }
@@ -190,7 +191,7 @@ export default function Home({ navigation }) {
 
     }
 
-    function changeLayout(searchKey, graphicData) {
+    function changeLayout(searchKey, graphicData, latestTemperature) {
         //alert('INICIANDO: ' + JSON.stringify(graphicData));
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         let expand; //Variável que vai receber a mudança do estado, e inserir no novo array
@@ -237,26 +238,23 @@ export default function Home({ navigation }) {
                 graphicComponent = [];
             }
 
+            if(latestTemperature == undefined){
+                latestTemperature = 0;
+            }
+
             let list = { //Cada dispositivo será alterado como necessitar
                 key: device.key,
                 name: device.name,
                 local: device.local,
                 expanded: expand,
                 lightState: device.lightState,
-                chartComponent: graphicComponent
+                chartComponent: graphicComponent,
+                latestTemp: latestTemperature
             }
             devicesUpdated.push(list); //Insere cada dispostivo no novo Array de dispositivos
         });
         setDevices(devicesUpdated);//Altera o array antigo, com o array novo, garantindo o funcionamento do dropdown para todos os dispositivos
-        //alert(JSON.stringify(devicesUpdated));
-
-
-        //alert(key);
-        //let expand = !expanded; //Pegamos o oposto do valor atual de expanded, para abrir se estiver fechada, e fechar se estiver aberta
-        //setExpanded(expand); //Passamos o novo valor para a expanded
-        //setFrequencyCounterC(0);
-        //setFrequencyCounterD(0);
-        //setFrequencyCounterU(0);
+        
     }
 
     async function getOcorrencias(searchKey) {
@@ -272,7 +270,7 @@ export default function Home({ navigation }) {
                 }
                 else {
                     setModalVisible(true);
-                    await axios.post('http://db25960f6cff.ngrok.io/temperatures', params)
+                    await axios.post('http://6fdc62761fd3.ngrok.io/temperatures', params)
                         .then(response => {
                             //alert(JSON.stringify(response.data));
 
@@ -291,11 +289,12 @@ export default function Home({ navigation }) {
                             }
                             //alert(JSON.stringify(graphicData));
                             setOcorrencias(graphicData);
+
                             getFrequency(response.data.frequenciaDoDispositivo);
                             //changeLayout(searchKey, graphicData);
 
                             if (graphicData.labels.length > 0) {
-                                changeLayout(searchKey, graphicData);
+                                changeLayout(searchKey, graphicData, graphicData.datasets[0].data[graphicData.labels.length-1]);
                             }
                             else {
                                 alert("Não existem registros para o dispositivo selecionado!");
@@ -315,31 +314,7 @@ export default function Home({ navigation }) {
 
     useEffect(() => {
         getDevices();
-        //testeConnection();
     }, [])
-
-    /*return (
-        <View style={{ alignItems: "center", justifyContent: "center" }}>
-            <Text style={{ textAlign: "center" }}>Devices: {JSON.stringify(devices)}</Text>
-            <TouchableOpacity
-                style={{ height: 40, width: 120, backgroundColor: '#000', borderRadius: 25, alignItems: "center", justifyContent: "center", marginTop: 25, marginBottom: 25 }}
-                onPress={() => { getOcorrencias(1) }}
-            >
-                <Text style={{ color: '#FFF' }}>GetOcorrencias</Text>
-            </TouchableOpacity>
-
-            <Text>Ocorrências: {JSON.stringify(ocorrencias)}</Text>
-
-            <Text>Última Temepratura Registrada: {JSON.stringify(temperatura)}</Text>
-            <Text>Hora Registrada: {JSON.stringify(horaRegistrada)}</Text>
-            <Text>Diferença de Temperatura: {JSON.stringify(diferencaTemperatura)}</Text>
-
-            <Text>Frequencia C: {JSON.stringify(frequencyCounterC)}</Text>
-            <Text>Frequencia D: {JSON.stringify(frequencyCounterD)}</Text>
-            <Text>Frequencia U: {JSON.stringify(frequencyCounterU)}</Text>
-
-        </View>
-    );*/
 
     return (
         // Container de toda a aplicação
@@ -388,7 +363,11 @@ export default function Home({ navigation }) {
                                 <View style={{ height: item.expanded ? 850 : 0, width: 0.95 * width, overflow: "hidden", marginBottom: 15, backgroundColor: '#FFF' }}>
                                     <Text style={{ paddingLeft: 15, paddingTop: 15 }}>Nome do dispositivo: <Text style={{ fontWeight: "bold" }}>{item.name}</Text></Text>
                                     <Text style={{ paddingLeft: 15 }}>Local: <Text style={{ fontWeight: "bold" }}>{item.local}</Text> </Text>
-                                    <Text style={{ paddingLeft: 15 }}>Última Temperatura Registarda: <Text style={{ fontWeight: "bold" }}>{temperatura}°C</Text></Text>
+                                    {ocorrencias != undefined ?
+                                        (<Text style={{ paddingLeft: 15 }}>Última Temperatura Registrada: <Text style={{ fontWeight: "bold" }}>{item.latestTemp}°C</Text></Text>)
+                                        :
+                                        (<></>)
+                                    }
                                     <View style={{ flexDirection: "row", width: 0.95 * width, alignItems: "center", justifyContent: "flex-end", padding: 20 }}>
                                         <Icon name="lightbulb" size={20}></Icon>
                                         {/* O Switch abaixo funcionará apenas para exibir o estado da luz (Apagada/Ligada), não podendo ser alterado pelo usuário */}
@@ -426,11 +405,11 @@ export default function Home({ navigation }) {
                                             </TouchableOpacity>
                                         </View>
 
-                                        <View style={{ flexDirection: "row", height: 160, width: '50%', marginTop: 15, justifyContent: "flex-end", alignItems: 'center', justifyContent: 'center' }}>
+                                        <View style={{ flexDirection: "row", height: 160, width: '50%', marginTop: 15, justifyContent: "flex-start", alignItems: 'center' }}>
                                             {/* Botões de + e - para aumentar ou diminuir a frequência de envio das informações pelo dispositivo */}
                                             <View style={{ flexDirection: "column" }}>
                                                 {/*Label para campo de Centena*/}
-                                                <Text style={{textAlign: "center"}}>C</Text>
+                                                <Text style={{ textAlign: "center" }}>C</Text>
                                                 {/* Botão de aumentar frequência */}
                                                 <TouchableOpacity style={{ width: 50, height: 50, alignItems: "center", justifyContent: "center", padding: 5, borderWidth: 1, borderLeftWidth: 0, borderColor: '#0B7534', backgroundColor: '#0B7534' }} onPress={() => { moreFrequency(1) }}>
                                                     <Icon name="plus" color={'#FFF'} size={15}></Icon>
@@ -448,7 +427,7 @@ export default function Home({ navigation }) {
                                             {/* Botões de + e - para aumentar ou diminuir a frequência de envio das informações pelo dispositivo */}
                                             <View style={{ flexDirection: "column", marginLeft: 10 }}>
                                                 {/*Label para campo de Dezena*/}
-                                                <Text style={{textAlign: "center"}}>D</Text>
+                                                <Text style={{ textAlign: "center" }}>D</Text>
                                                 {/* Botão de aumentar frequência */}
                                                 <TouchableOpacity style={{ width: 50, height: 50, alignItems: "center", justifyContent: "center", padding: 5, borderWidth: 1, borderLeftWidth: 0, borderColor: '#0B7534', backgroundColor: '#0B7534' }} onPress={() => { moreFrequency(2) }}>
                                                     <Icon name="plus" color={'#FFF'} size={15}></Icon>
@@ -464,7 +443,7 @@ export default function Home({ navigation }) {
                                             {/* Botões de + e - para aumentar ou diminuir a frequência de envio das informações pelo dispositivo */}
                                             <View style={{ flexDirection: "column", marginLeft: 10 }}>
                                                 {/*Label para campo de Unidade*/}
-                                                <Text style={{textAlign: "center"}}>U</Text>
+                                                <Text style={{ textAlign: "center" }}>U</Text>
                                                 {/* Botão de aumentar frequência */}
                                                 <TouchableOpacity style={{ width: 50, height: 50, alignItems: "center", justifyContent: "center", padding: 5, borderWidth: 1, borderLeftWidth: 0, borderColor: '#0B7534', backgroundColor: '#0B7534' }} onPress={() => { moreFrequency(3) }}>
                                                     <Icon name="plus" color={'#FFF'} size={15}></Icon>
@@ -476,9 +455,11 @@ export default function Home({ navigation }) {
                                                     <Icon name="minus" color={'#FFF'} size={15}></Icon>
                                                 </TouchableOpacity>
                                             </View>
-                                        </View>                                        
+                                        </View>
                                     </View>
-                                    <Text style={{ fontWeight: "bold", textAlign: "center", marginTop: 15 }}>*Em segundos</Text>
+                                    <View style={{ width: '100%', alignItems: "flex-end" }}>
+                                        <Text style={{ width: '50%', fontWeight: "bold", textAlign: "left", marginTop: 15 }}>*Em minutos</Text>
+                                    </View>
                                 </View>
                             </View>
                         )}
@@ -489,7 +470,7 @@ export default function Home({ navigation }) {
                     <View style={{ alignItems: "center" }}>
                         {diferencaTemperatura != null ?
                             (
-                                <View style={{flexDirection: "row"}}>
+                                <View style={{ flexDirection: "row" }}>
                                     <Icon name="not-equal" color={"#FFF"} size={16}></Icon>
                                     <Text style={{ color: '#fff', marginLeft: 5 }}><Text style={{ fontWeight: "bold" }}>{diferencaTemperatura}°C</Text></Text>
                                 </View>

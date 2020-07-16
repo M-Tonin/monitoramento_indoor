@@ -254,10 +254,10 @@ void loop ()
     
   if (millis() - MillisAnterior >= intervalo) {
 
-    Serial.println(millis());
+    /*Serial.println(millis());
     Serial.println(MillisAnterior);
     Serial.println(millis() - MillisAnterior);
-    
+    */
     
     MillisAnterior = millis();
     temp = ReadTemp();
@@ -321,9 +321,10 @@ void mandatx() {
    
    if((millis() - last_interrupt_time > 200 )&& flag){
     flag = false;
-    Serial.println(millis());
+    /*Serial.println(millis());
     Serial.println(last_interrupt_time);
     Serial.println(millis() - last_interrupt_time);
+    */
 
     
     temp = ReadTemp();
@@ -343,6 +344,9 @@ void mandatx() {
     Serial.print("\n");
 
     //Loop que atesta que a transmissão foi completada
+    FirstTX = true;
+    do_send(&sendjob);
+    
     while (entregou != true) {
       os_runloop_once();
     }
