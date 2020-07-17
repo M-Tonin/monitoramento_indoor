@@ -58,3 +58,6 @@ Para uma melhor visualização dos dados coletados pelos dispositivos, foi reque
  <li>Compos para controle da frequência de envio das informações</li>
  <li>Botão salvar alteração de frequência</li>
 </ul>
+
+<h3><b>Tela de inicio da Aplicação</b></h3>
+
