@@ -33,5 +33,9 @@
 
 -------------
 ## Banco de Dados
-* tb_dispositivo - contém os registros de todos os dispositivos
-* tb_ocorrencia - contém as ocorrências de leituras de telemetria registradas pelos dispositivos
+* tb_dispositivo - Mantém o cadastro dos dispositivos de captura indoor, com indicativos de frequência de leitura, valor mínimo de luminosidade, status de ativo e  Inativo e temperatura, sua identificação e localização.
+* tb_ocorrencia - Mantém o cadastro de todas as ocorrências/medições por dispositivo, armazenando por dia e hora o valor da  luminosidade  e da temperatura.
+* tb_parametro - Mantém o cadastro do intervalo para futuras medições e ou análises.
+<img src="/Imagens/tabelas.png" width="523" height="471"/>
+
+Mais informações a respeito do banco de dados no arquivo "Documentação_Modelagem.txt".
