@@ -63,4 +63,51 @@ Para uma melhor visualização dos dados coletados pelos dispositivos, foi reque
  
 </ul>
 
+---------------------------------------------------
+<h3><b>Forma de usar o Reac Native</b></h3>
+<p>Para utilizar o ReactNative, são necessarios os seguintes requisitos:
+  <ol>
+     <li>Python (Recomendado o Python2)</li>
+     <li>JDK (Extremamente recomendado o JDK8)</li>
+     <li>NODEJS (Recomendado a última versão LTS)</li>
+     <li>SDK DO ANDROID STUDIO</li>
+     <li>YARN (Alternativa ao npm do NodeJS, mais veloz que o mesmo)</li>
+     <li>REACT-NATIVE-CLI (npm install -g react-native-cli)</li>
+  </ol>
+</p>
+<p><b>OBS:</b> Todos os programas acima devem estar com suas variáveis de ambiente devidamente configuradas.</p>
+
+<p>Uma opção para agilizar a instalação do ambiente como um todo segue abaixo para o Windows:
+  <ol>
+      <li>Instalar o Chocolatey (https://chocolatey.org/install);</li>
+      <li>Ainda no PowerShell, execute o comando "refreshenv" para atualizar as variáveis de ambiente;</li>
+      <li>Também no PowerShell, execute "choco install -y python2 jdk8 nodejs-lts";
+</li>
+      <li>No Terminal de Comando (CMD) execute "npm install yarn";</li>
+      <li>Ainda no CMD execute "npm install -g react-native-cli";</li>
+      <li>Com os comandos acima, todas as variáveis de ambiente já ficaram configuradas automaticamente;</li>
+      <li>Resta agora, baixar o Android Studio, ou, apenas seu SDK Tools e configurar a variável de ambiente ANDROID_HOME</li>
+  </ol>
+</p>
+<p>
+ Bibliotecas utilizadas:
+    <ul>
+       <li>Axios - Para realizar as requisições ao Servidor;</li>
+       <li>ChartKit - Para desenhar o gráfico;</li>
+       <li>LinearGradient - Para realizar os degradês em backgrounds e botões;</li>
+       <li>VectorIcons - Para utilizar os ícones</li>
+       <li>Navigation e StackNavigation para estruturação do sistema de navegação;</li>
+    </ul>
+</p>
+
+<p>
+Para testar o aplicativo, deve-se clonar o repositório "aplicacao", ir até seu diretorio pelo Terminal, e, 
+dentro da pasta que contém o arquivo package.json, rodar primeiramente o comando: npm install ou yarn.
+Após ter instalado todas as dependências com o comando acima, conecte seu Android ao computador via USB, 
+ative a Depuração USB e a opção de instalar aplicativos pelo USB, e então, no Terminal, execute: react-native run-android.
+Verifique seu dispositivo, pois enquanto o procedimento ocorre no computador, será solicitado (na primeira vez que 
+utilizas a Depuração USB neste computador) permissão para manipulação, e também, permissão para instalar o aplicativo 
+pelo USB. Após isto, o dispositivo deverá abrir o aplicativo rodando em seu estado atual de desenvolvimento.
+</p>
+
 
