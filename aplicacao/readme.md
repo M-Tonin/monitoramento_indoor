@@ -46,6 +46,7 @@ Para uma melhor visualização dos dados coletados pelos dispositivos, foi reque
  <li>Última temperatura registrada (no geral, independente do dispositivo).</li>
  <li>Hora da última temperatura registrada (item B).</li>
 </ul>
+<img src="https://user-images.githubusercontent.com/32252053/87790233-9f8ee800-c816-11ea-9c01-8a6a5add33da.jpg" width="250" heigth="300"/>
 
 <h3><b>Dropdown Expandido</b></h3>
 <p>Ao abrir o dropdown, o usuário terá acesso aos dados daquele dispositivo específico, que serão:</p>
@@ -59,5 +60,4 @@ Para uma melhor visualização dos dados coletados pelos dispositivos, foi reque
  <li>Botão salvar alteração de frequência</li>
 </ul>
 
-<h3><b>Tela de inicio da Aplicação</b></h3>
-![Screenshot_2020-07-13-18-33-55-609_com monitoramentoindoor](https://user-images.githubusercontent.com/32252053/87790233-9f8ee800-c816-11ea-9c01-8a6a5add33da.jpg)
+
