@@ -184,7 +184,7 @@ export default function Home({ navigation }) {
         //requisição de atualização
         axios.post("http://6fdc62761fd3.ngrok.io/updateFreq", params).then(response => {
             if (response.data.success) {
-                alert('Frequência alterada com sucesso!');
+                alert('A frequência será alterada no próximo envio do dispositivo!');
             }
         }).catch(error => { alert(JSON.stringify(error)) });
         //alert("A frequência do " +  teste.nome + " foi alterada para " + teste.data + "!" + teste.hora);
