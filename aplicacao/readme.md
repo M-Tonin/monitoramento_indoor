@@ -60,4 +60,4 @@ Para uma melhor visualização dos dados coletados pelos dispositivos, foi reque
 </ul>
 
 <h3><b>Tela de inicio da Aplicação</b></h3>
-
+![Screenshot_2020-07-13-18-33-55-609_com monitoramentoindoor](https://user-images.githubusercontent.com/32252053/87790233-9f8ee800-c816-11ea-9c01-8a6a5add33da.jpg)
