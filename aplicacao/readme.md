@@ -64,7 +64,7 @@ Para uma melhor visualização dos dados coletados pelos dispositivos, foi reque
 </ul>
 
 ---------------------------------------------------
-<h3><b>Forma de usar o Reac Native</b></h3>
+<h3><b>Como utilizar o Reac Native</b></h3>
 <p>Para utilizar o ReactNative, são necessarios os seguintes requisitos:
   <ol>
      <li>Python (Recomendado o Python2)</li>
