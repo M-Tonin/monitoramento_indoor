@@ -30,3 +30,8 @@
   * Biblioteca com todos os recursos necessários para a utilização das operações MySQL que o servidor precisa para se comunicar com o banco de dados.
 * dictTreatLib_Server.py
   * Biblioteca auxiliar que faz o tratamento de dados retirados do banco de dados para serem enviados à aplicação de forma que facilite a leitura dos mesmos.
+
+-------------
+## Banco de Dados
+* tb_dispositivo - contém os registros de todos os dispositivos
+* tb_ocorrencia - contém as ocorrências de leituras de telemetria registradas pelos dispositivos
