@@ -58,8 +58,9 @@ Para uma melhor visualização dos dados coletados pelos dispositivos, foi reque
  <li>Gráfico de linha com as temperaturas das ultimas 24 horas.</li>
  <li>Compos para controle da frequência de envio das informações</li>
  <li>Botão salvar alteração de frequência</li>
- <img src="https://user-images.githubusercontent.com/32252053/87797242-ce11c080-c820-11ea-9834-08ea5ce89528.jpg"  width="250" heigth="300"/>
  <img src="https://user-images.githubusercontent.com/32252053/87791983-92272d00-c819-11ea-8457-2f528225e41a.jpg"  width="250" heigth="300"/>
+ <img src="https://user-images.githubusercontent.com/32252053/87797242-ce11c080-c820-11ea-9834-08ea5ce89528.jpg"  width="250" heigth="300"/>
+ 
 </ul>
 
 
