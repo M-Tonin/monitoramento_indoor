@@ -46,6 +46,7 @@ funcionando de forma satisfatória.
 ---------------------------------
 ### Problemas encontrados
 ---------------------------------
+* Para usar o NoceMCU v3 na IDE do arduino é preciso inicialmente instalar o MCU na IDE. O detalhe de como isto é feito pode ser encontrado em um dos links abaixo.
 * Usando o botão, o mesmo estava tendo alguma interferência ao utilizá-lo Normalmente Aberto. Indicando que o mesmo foi fechado, quando não havia acontecido. Como forma de resolver este problema, foi utilizado o próprio resistor de pullup do arduino em que de modo geral, inverte o funcionamento da entrada, sendo agora sensível
 a níveis lógicos baixos.
 * O efeito descrito acima é conhecido como bouncing. É comum em botões mecânicos. Neste projeto, utilizou-se duas soluções para este problema. Para o circuito utilizando arduino, foi utilizado o recurso de interrupção do sistema, juntamente com uma verificação da taxa de acionamentos, em que uma nova interrupção não ocorreria se o intervalo entre uma e outra fosse menor que um curto período de tempo especificado. Para o circuito utilizando o ESP8266, por não ter o recurso de interrupção,foi implementado um circuito RC para que variações bruscas da tensão do botão fossem atenuadas.
@@ -67,6 +68,8 @@ a níveis lógicos baixos.
 ---------------------------------
 ### Links auxiliares
 ---------------------------------
+* Como programar o NodeMCU v3 com IDE arduino
+  * https://www.filipeflop.com/blog/programar-nodemcu-com-ide-arduino/
 * Biblioteca LoRa utilizada
   * https://github.com/matthijskooijman/arduino-lmic
 * Biblioteca ArduinoJSON utilizada
