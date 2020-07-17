@@ -36,5 +36,6 @@
 * tb_dispositivo - Mantém o cadastro dos dispositivos de captura indoor, com indicativos de frequência de leitura, valor mínimo de luminosidade, status de ativo e  Inativo e temperatura, sua identificação e localização.
 * tb_ocorrencia - Mantém o cadastro de todas as ocorrências/medições por dispositivo, armazenando por dia e hora o valor da  luminosidade  e da temperatura.
 * tb_parametro - Mantém o cadastro do intervalo para futuras medições e ou análises.
-- Mais informações a respeito do banco de dados no arquivo "Documentação_Modelagem.txt".
 <img src="/Imagens/tabelas.png" width="523" height="471"/>
+
+Mais informações a respeito do banco de dados no arquivo "Documentação_Modelagem.txt".
