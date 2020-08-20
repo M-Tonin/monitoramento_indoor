@@ -67,7 +67,7 @@ def getOcorrenciaDict(res):
 def getDispositivosDict(res):
     dpDict = DispositivosDict()
     for row in res:       
-        dp = DispositivoEnvio(row[0],str(row[1]),str(row[2]), str(row[6]))
+        dp = DispositivoEnvio(row[0],str(row[2]),str(row[1]), str(row[6]))
         dpDict.dispositivos.append(vars(dp))
     return vars(dpDict)
     
