@@ -6,7 +6,7 @@ import ttn
 mysqlConn = None
 
 # this value must be in sync with the database
-LIGHTING_THRESHOLD = 70
+LIGHTING_THRESHOLD = 20
 
 # downlink frequency control per device
 freq1 = 0
