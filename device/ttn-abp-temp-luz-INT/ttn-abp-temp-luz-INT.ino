@@ -169,7 +169,7 @@ uint16_t lux;
 uint8_t luxHIGH;
 uint8_t luxLOW;
 // Contantes auxiliáres
-unsigned long int intervalo = 600000;
+unsigned long intervalo = 600000;
 unsigned long MillisAnterior = 0;
 
 
@@ -221,7 +221,7 @@ void setup ()
   LMIC_setDrTxpow(DR_SF7, 14);
 
   // Start job
-  do_send(&sendjob);
+  //do_send(&sendjob);
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
   SPI.begin ();                    // Inicializa comunicacao SPI
@@ -350,7 +350,7 @@ void mandatx() {
     while (entregou != true) {
       os_runloop_once();
     }
-    entregou = false;
+   entregou = false;
 
 
     //Impressão dos valores lidos
