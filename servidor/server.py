@@ -21,9 +21,6 @@ user = 'root'
 password = '#IBTI@2019'
 database = 'db_indoor'
 
-# default failure response to the application
-response_failure = jsonify (success = False)
-
 # connect to ttn iot platform
 try:
   handler = ttn.HandlerClient (appId, accessKey)
@@ -55,7 +52,7 @@ def upWifi ():
     temp = float (request.args.get ('temp')) / 10
     lux = int (request.args.get ('lux'))
   except (KeyError, TypeError, ValueError):
-    return util.answer (app, 204, response_failure)
+    return util.answer (app, 204, jsonify (success = False))
 
   print ('Uplink received from: WiFi.')
   print (f'PAYLOAD: {str (lux)} Lux, {str (temp)} °C.\n\n')
@@ -100,7 +97,7 @@ def devices ():
     return util.answer (app, 200, resp)
   except:
     print (f'Error while trying to gather information from all devices.')
-    return util.answer (app, 404, response_failure)
+    return util.answer (app, 404, jsonify (success = False))
 
 # all temperature readings from last 24h
 @app.route ('/temperatures', methods = ['GET',"POST"])
@@ -108,7 +105,7 @@ def temperatures ():
   try:
     data = request.get_json ()
   except (KeyError, TypeError, ValueError):
-    return util.answer (app, 204, response_failure)
+    return util.answer (app, 204, jsonify (success = False))
 
   try:
     resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_ALL_OCS, 
@@ -122,8 +119,9 @@ def temperatures ():
     resp = json.dumps (dt.concatDicts([dict1,dict_freq]), indent = 4, separators = (", "," : "))
     return util.answer (app, 200, resp)
   except:
-    print (f'Error: device {data ['id_dispositivo']} not found.')
-    return util.answer (app, 404, response_failure)
+    d = data ['id_dispositivo']
+    print (f'Error: device {d} not found.')
+    return util.answer (app, 404, jsonify (success = False))
 
 # device frequency request
 @app.route ('/frequency')
@@ -131,7 +129,7 @@ def frequency ():
   try:
     data = request.get_json ()
   except (KeyError, TypeError, ValueError):
-    return util.answer (app, 204, response_failure)
+    return util.answer (app, 204, jsonify (success = False))
 
   try:
     resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_FREQ_DISP, 
@@ -140,7 +138,7 @@ def frequency ():
     dict1 = json.dumps (dt.getFreqDispDict (resp1), indent = 4, separators = (", "," : "))
     return util.answer (app, 200, dict1)
   except:
-    return util.answer (app, 204, response_failure)
+    return util.answer (app, 204, jsonify (success = False))
 
 # change device frequency
 @app.route ('/updateFreq', methods = ['GET',"POST"])
@@ -150,7 +148,7 @@ def updateFreq ():
     key = data ['id_dispositivo']
     frequencia = data ['nova_frequencia']
   except (KeyError, TypeError, ValueError):
-    return util.answer (app, 204, response_failure)
+    return util.answer (app, 204, jsonify (success = False))
 
   if key == 1 and frequencia > 0:
     util.freq1 = frequencia
