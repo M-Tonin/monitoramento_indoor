@@ -21,6 +21,9 @@ user = 'root'
 password = '#IBTI@2019'
 database = 'db_indoor'
 
+# default failure response to the application
+response_failure = jsonify (success = False)
+
 # connect to ttn iot platform
 try:
   handler = ttn.HandlerClient (appId, accessKey)
@@ -52,10 +55,11 @@ def upWifi ():
     temp = float (request.args.get ('temp')) / 10
     lux = int (request.args.get ('lux'))
   except (KeyError, TypeError, ValueError):
-    return jsonify (success = False)
+    return util.answer (app, 204, response_failure)
 
   print ('Uplink received from: WiFi.')
   print (f'PAYLOAD: {str (lux)} Lux, {str (temp)} °C.\n\n')
+  
   util.callInsert (2, temp, lux)
  
   if (util.freq2 != 0):
@@ -75,24 +79,28 @@ def upWifi ():
 #   temperature difference between both devices
 @app.route ('/devices')
 def devices ():
-  idDisp1 = sql.dbSelectFromQuery (cursor, sql.SEL_MIN_DISP, 
-                                           sql.WH_ST_DISP.format ("'A'"))
-  idDisp2 = sql.dbSelectFromQuery (cursor, sql.SEL_MAX_DISP, 
-                                           sql.WH_ST_DISP.format ("'A'"))
-  resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_DISP_ULT_LUM.format (idDisp1 [0] [0], idDisp2 [0] [0]), '')
-  dict1 = dt.getDispositivosDict (resp1)
-  resp2 = sql.dbSelectFromQuery (cursor, sql.SEL_ULT_TEMP_DT_HR, '')
-  dict2 = dt.getUltTempDict (resp2)
-  resp3 = sql.dbSelectFromQueryUnion (cursor, [[sql.SEL_TEMP_HR_OC, 
-                                                sql.WH_MAX_OC_DISP.format (idDisp1 [0] [0]) + sql.AND + 
-                                                sql.ULT_24_HORAS],
-                                               [sql.SEL_TEMP_HR_OC, 
-                                                sql.WH_MAX_OC_DISP.format (idDisp2 [0] [0]) + sql.AND + 
-                                                sql.ULT_24_HORAS]])
-  dict3 = dt.getDiffTempDict (resp3)
+  try:
+    idDisp1 = sql.dbSelectFromQuery (cursor, sql.SEL_MIN_DISP, 
+                                            sql.WH_ST_DISP.format ("'A'"))
+    idDisp2 = sql.dbSelectFromQuery (cursor, sql.SEL_MAX_DISP, 
+                                            sql.WH_ST_DISP.format ("'A'"))
+    resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_DISP_ULT_LUM.format (idDisp1 [0] [0], idDisp2 [0] [0]), '')
+    dict1 = dt.getDispositivosDict (resp1)
+    resp2 = sql.dbSelectFromQuery (cursor, sql.SEL_ULT_TEMP_DT_HR, '')
+    dict2 = dt.getUltTempDict (resp2)
+    resp3 = sql.dbSelectFromQueryUnion (cursor, [[sql.SEL_TEMP_HR_OC, 
+                                                  sql.WH_MAX_OC_DISP.format (idDisp1 [0] [0]) + sql.AND + 
+                                                  sql.ULT_24_HORAS],
+                                                [sql.SEL_TEMP_HR_OC, 
+                                                  sql.WH_MAX_OC_DISP.format (idDisp2 [0] [0]) + sql.AND + 
+                                                  sql.ULT_24_HORAS]])
+    dict3 = dt.getDiffTempDict (resp3)
 
-  resp = json.dumps (dt.concatDicts ([dict1, dict2, dict3]), indent = 4, separators = (", "," : "))
-  return util.answer (app, 200, resp)
+    resp = json.dumps (dt.concatDicts ([dict1, dict2, dict3]), indent = 4, separators = (", "," : "))
+    return util.answer (app, 200, resp)
+  except:
+    print (f'Error while trying to gather information from all devices.')
+    return util.answer (app, 404, response_failure)
 
 # all temperature readings from last 24h
 @app.route ('/temperatures', methods = ['GET',"POST"])
@@ -100,19 +108,22 @@ def temperatures ():
   try:
     data = request.get_json ()
   except (KeyError, TypeError, ValueError):
-    resp = jsonify (success = False)
-    return util.answer (app, 204, resp)
+    return util.answer (app, 204, response_failure)
 
-  resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_ALL_OCS, 
-                                         sql.WH_DISP.format (data ['id_dispositivo']) + sql.AND + 
-                                         sql.ULT_24_HORAS + "\nLIMIT 192")
-  dict1 = (dt.getOcorrenciaDict (resp1))
-  resp_freq = sql.dbSelectFromQuery (cursor, sql.SEL_FREQ_DISP, 
-                                             sql.WH_DISP.format (data ['id_dispositivo']))
-  dict_freq = (dt.getFreqDispDict (resp_freq))
-  dict1.update(dict_freq)
-  resp = json.dumps (dt.concatDicts([dict1,dict_freq]), indent = 4, separators = (", "," : "))
-  return util.answer (app, 200, resp)
+  try:
+    resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_ALL_OCS, 
+                                          sql.WH_DISP.format (data ['id_dispositivo']) + sql.AND + 
+                                          sql.ULT_24_HORAS + "\nLIMIT 192")
+    dict1 = (dt.getOcorrenciaDict (resp1))
+    resp_freq = sql.dbSelectFromQuery (cursor, sql.SEL_FREQ_DISP, 
+                                              sql.WH_DISP.format (data ['id_dispositivo']))
+    dict_freq = (dt.getFreqDispDict (resp_freq))
+    dict1.update (dict_freq)
+    resp = json.dumps (dt.concatDicts([dict1,dict_freq]), indent = 4, separators = (", "," : "))
+    return util.answer (app, 200, resp)
+  except:
+    print (f'Error: device {data ['id_dispositivo']} not found.')
+    return util.answer (app, 404, response_failure)
 
 # device frequency request
 @app.route ('/frequency')
@@ -120,25 +131,26 @@ def frequency ():
   try:
     data = request.get_json ()
   except (KeyError, TypeError, ValueError):
-    return jsonify (success = False)
+    return util.answer (app, 204, response_failure)
 
-  resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_FREQ_DISP, 
-                                         sql.WH_DISP.format (data ['id_dispositivo']))
+  try:
+    resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_FREQ_DISP, 
+                                          sql.WH_DISP.format (data ['id_dispositivo']))
 
-  dict1 = json.dumps (dt.getFreqDispDict (resp1), indent = 4, separators = (", "," : "))
-  return util.answer (app, 200, dict1)
+    dict1 = json.dumps (dt.getFreqDispDict (resp1), indent = 4, separators = (", "," : "))
+    return util.answer (app, 200, dict1)
+  except:
+    return util.answer (app, 204, response_failure)
 
 # change device frequency
 @app.route ('/updateFreq', methods = ['GET',"POST"])
 def updateFreq ():
   try:
     data = request.get_json ()
+    key = data ['id_dispositivo']
+    frequencia = data ['nova_frequencia']
   except (KeyError, TypeError, ValueError):
-    resp = jsonify (success = False)
-    return util.answer (app, 204, resp)
-
-  key = data ['id_dispositivo']
-  frequencia = data ['nova_frequencia']
+    return util.answer (app, 204, response_failure)
 
   if key == 1 and frequencia > 0:
     util.freq1 = frequencia
@@ -147,7 +159,7 @@ def updateFreq ():
     util.freq2 = frequencia
     print ('Downlink scheduled to WiFi device.')
 
-  return jsonify (success = True)
+  return util.answer (app, 200, jsonify (success = True))
 
 # online
 if __name__ == '__main__':
