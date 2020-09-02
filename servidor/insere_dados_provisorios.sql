@@ -13,7 +13,7 @@
 
 -- Por padrão, as ocorrências serão geradas com status de luminosidade em '1' (aceso).
 
-
+USE `db_indoor`;
 
 -- Inserindo dispositivos
 DELIMITER //
@@ -51,7 +51,7 @@ BEGIN
 	DECLARE done INT DEFAULT FALSE;
 	DECLARE TMP NUMERIC(3,1);
 	DECLARE IDO,LUM,c,fator INT;
-	DECLARE DAT DATE;
+	DECLARE DAT,curr_date DATE;
 	DECLARE HRO,curr_time TIME;
 	DECLARE STS CHAR(1);
 	DECLARE cursor1 CURSOR FOR SELECT SEL1.* FROM 
@@ -71,7 +71,7 @@ BEGIN
 							   LIMIT qtde_ocorrencias) AS SEL2
 							   ORDER BY SEL2.id_ocorrencia ASC;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
-	SET fator = qtde_ocorrencias * 2 * -60 - 120;
+	SET fator = qtde_ocorrencias * 2 * -1 - 2;
 	IF EXISTS (SELECT * FROM tb_ocorrencia) THEN
 		IF NOT EXISTS (SELECT * FROM tb_ocorrencia 
 					   WHERE id_dispositivo = 1) THEN					  
@@ -82,10 +82,12 @@ BEGIN
 				IF done THEN
 					LEAVE insere1;
 				END IF;
+
 				INSERT INTO tb_ocorrencia(id_dispositivo,vl_temperatura,
 										  vl_luminosidade,dt_ocorrencia,
 										  hr_ocorrencia,st_luminosidade) 
-				VALUES (1,TMP + ROUND(-0.2+(RAND()*0.4),1),LUM,DAT,ADDTIME(HRO,SEC_TO_TIME(-60)),STS);
+				VALUES (1,TMP + ROUND(-0.2+(RAND()*0.4),1),LUM,DATE(ADDDATE(TIMESTAMP(DAT,HRO),INTERVAL -1 MINUTE)),
+					    TIME(ADDDATE(TIMESTAMP(DAT,HRO),INTERVAL -1 MINUTE)),STS);
 				COMMIT;
 			END LOOP;
 		ELSEIF NOT EXISTS (SELECT * FROM tb_ocorrencia 
@@ -100,29 +102,33 @@ BEGIN
 				INSERT INTO tb_ocorrencia(id_dispositivo,vl_temperatura,
 										  vl_luminosidade,dt_ocorrencia,
 										  hr_ocorrencia,st_luminosidade) 
-				VALUES (2,TMP + ROUND(-0.2+(RAND()*0.4),1),LUM,DAT,ADDTIME(HRO,SEC_TO_TIME(-60)),STS);
+				VALUES (2,TMP + ROUND(-0.2+(RAND()*0.4),1),LUM,DATE(ADDDATE(TIMESTAMP(DAT,HRO),INTERVAL -1 MINUTE)),
+						TIME(ADDDATE(TIMESTAMP(DAT,HRO),INTERVAL -1 MINUTE)),STS);
 				COMMIT;
 			END LOOP;
 		END IF;
 	ELSE
 		SET c = 0;
-		SET curr_time = ADDTIME(CURRENT_TIME,SEC_TO_TIME(fator));
+		SET curr_date = DATE(ADDDATE(CURRENT_TIMESTAMP,INTERVAL fator MINUTE));
+		SET curr_time = TIME(ADDDATE(CURRENT_TIMESTAMP,INTERVAL fator MINUTE));
 		init: LOOP
 			SET c = c + 1;
 			IF c > qtde_ocorrencias THEN
 				LEAVE init;
 			END IF;
-			SET curr_time = ADDTIME(curr_time,SEC_TO_TIME(60));
+			SET curr_date = DATE(ADDDATE(TIMESTAMP(curr_date,curr_time),INTERVAL 1 MINUTE));
+			SET curr_time = TIME(ADDDATE(TIMESTAMP(curr_date,curr_time),INTERVAL 1 MINUTE));
 			INSERT INTO tb_ocorrencia(id_dispositivo,vl_temperatura,
 									  vl_luminosidade,dt_ocorrencia,
 									  hr_ocorrencia,st_luminosidade) 
-			VALUES (1,ROUND(27+(RAND()*3),1),FLOOR(395+(RAND()*10)),CURRENT_DATE,curr_time,'1');
+			VALUES (1,ROUND(27+(RAND()*3),1),FLOOR(395+(RAND()*10)),curr_date,curr_time,'1');
 			COMMIT;
-			SET curr_time = ADDTIME(curr_time,SEC_TO_TIME(60));
+			SET curr_date = DATE(ADDDATE(TIMESTAMP(curr_date,curr_time),INTERVAL 1 MINUTE));
+			SET curr_time = TIME(ADDDATE(TIMESTAMP(curr_date,curr_time),INTERVAL 1 MINUTE));
 			INSERT INTO tb_ocorrencia(id_dispositivo,vl_temperatura,
 									  vl_luminosidade,dt_ocorrencia,
 									  hr_ocorrencia,st_luminosidade) 
-			VALUES (2,ROUND(27+(RAND()*3),1),FLOOR(395+(RAND()*10)),CURRENT_DATE,curr_time,'1');
+			VALUES (2,ROUND(27+(RAND()*3),1),FLOOR(395+(RAND()*10)),curr_date,curr_time,'1');
 			COMMIT;
 		END LOOP init;
 	END IF;
@@ -131,7 +137,7 @@ END;//
 DELIMITER ;
 
 CALL insere_dispositivos();
-CALL insere_ocorrencias(100);
+CALL insere_ocorrencias(1000);
 
 DROP PROCEDURE insere_dispositivos;
 DROP PROCEDURE insere_ocorrencias;

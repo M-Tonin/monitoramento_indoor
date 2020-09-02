@@ -6,7 +6,7 @@ import ttn
 mysqlConn = None
 
 # this value must be in sync with the database
-LIGHTING_THRESHOLD = 70
+LIGHTING_THRESHOLD = 100
 
 # downlink frequency control per device
 freq1 = 0
@@ -20,8 +20,11 @@ def callInsert (d, t, l):
     s = 1
   s = str (s)
 
-  sql.dbInsertFromQuery (mysqlConn.cursor (), sql.INS_OC.format (d, t, l, s), '')
-  mysqlConn.commit ()
+  try:
+    sql.dbInsertFromQuery (mysqlConn.cursor (), sql.INS_OC.format (d, t, l, s), '')
+    mysqlConn.commit ()
+  except:
+    print (f'Error: failed to insert data from device {d} into database.')
 
 # ttn downlink send function
 # automatically adjusts payload bytes in length and useful information and sends to ttn
@@ -50,11 +53,14 @@ def callUpdateFreq (key):
     f = freq2
     freq2 = 0
 
-  sql.dbExecQuery (mysqlConn.cursor (), sql.UPD_FREQ_DISP.format (f), sql.WH_DISP.format (key))
-  mysqlConn.commit ()
+  try:
+    sql.dbExecQuery (mysqlConn.cursor (), sql.UPD_FREQ_DISP.format (f), sql.WH_DISP.format (key))
+    mysqlConn.commit ()
+  except:
+    print (f'Error: failed to update frequency from device {key} into database.')
 
-# convert received data from wifi device to proper temperature and lighting values
 # DEPRECATED-
+# convert received data from wifi device to proper temperature and lighting values
 def bytesToInt (b):
   aux = 0
   for i in b:
