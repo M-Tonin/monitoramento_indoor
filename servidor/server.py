@@ -16,7 +16,7 @@ appId = 'monitoramento-indoor'
 accessKey = 'ttn-account-v2.L0jlR9qu-OzefvHzRzBq6SjaA6jPx8gBPfdo-6aLg4c'
 
 # mysql variables
-host = 'localhost'
+host = '192.168.2.211'
 user = 'root'
 password = '#IBTI@2019'
 database = 'db_indoor'
@@ -145,10 +145,11 @@ def frequency ():
 def updateFreq ():
   try:
     data = request.get_json ()
-    key = data ['id_dispositivo']
-    frequencia = data ['nova_frequencia']
   except (KeyError, TypeError, ValueError):
     return util.answer (app, 204, jsonify (success = False))
+
+  key = data ['id_dispositivo']
+  frequencia = data ['nova_frequencia']
 
   if key == 1 and frequencia > 0:
     util.freq1 = frequencia
