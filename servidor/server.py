@@ -43,7 +43,7 @@ else:
 cursor = util.mysqlConn.cursor ()
 
 # setup is done; entering flask routine section
-print ('Listening...')
+print ('Listening..')
 
 # uplink received from wifi device
 @app.route ('/upWifi')
@@ -59,14 +59,16 @@ def upWifi ():
   
   util.callInsert (2, temp, lux)
  
-  if (util.freq2 != 0):
-    util.callUpdateFreq (2)
-    print ('WiFi device frequency has been updated on the database.')
+  
 
+  print(util.freq2)
   dataFreq = {
     'freq': util.freq2
   }
-  util.freq2 = 0
+  
+  if (util.freq2 != 0):
+    util.callUpdateFreq (2)
+    print ('WiFi device frequency has been updated on the database.')
 
   return jsonify (dataFreq)
 
