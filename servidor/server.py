@@ -52,7 +52,7 @@ def upWifi ():
     temp = float (request.args.get ('temp')) / 10
     lux = int (request.args.get ('lux'))
   except (KeyError, TypeError, ValueError):
-    return util.answer (app, 204, jsonify (success = False))
+    return jsonify (success = False)
 
   print ('Uplink received from: WiFi.')
   print (f'PAYLOAD: {str (lux)} Lux, {str (temp)} °C.\n\n')
@@ -97,7 +97,7 @@ def devices ():
     return util.answer (app, 200, resp)
   except:
     print (f'Error while trying to gather information from all devices.')
-    return util.answer (app, 404, jsonify (success = False))
+    return jsonify (success = False)
 
 # all temperature readings from last 24h
 @app.route ('/temperatures', methods = ['GET',"POST"])
@@ -105,7 +105,7 @@ def temperatures ():
   try:
     data = request.get_json ()
   except (KeyError, TypeError, ValueError):
-    return util.answer (app, 204, jsonify (success = False))
+    return jsonify (success = False)
 
   try:
     resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_ALL_OCS, 
@@ -121,7 +121,7 @@ def temperatures ():
   except:
     d = data ['id_dispositivo']
     print (f'Error: device {d} not found.')
-    return util.answer (app, 404, jsonify (success = False))
+    return jsonify (success = False)
 
 # device frequency request
 @app.route ('/frequency')
@@ -129,7 +129,7 @@ def frequency ():
   try:
     data = request.get_json ()
   except (KeyError, TypeError, ValueError):
-    return util.answer (app, 204, jsonify (success = False))
+    return jsonify (success = False)
 
   try:
     resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_FREQ_DISP, 
@@ -138,20 +138,20 @@ def frequency ():
     dict1 = json.dumps (dt.getFreqDispDict (resp1), indent = 4, separators = (", "," : "))
     return util.answer (app, 200, dict1)
   except:
-    return util.answer (app, 204, jsonify (success = False))
+    return jsonify (success = False)
 
 # change device frequency
-@app.route ('/updateFreq', methods = ['GET',"POST"])
+@app.route ('/updateFreq', methods = ['GET','POST'])
 def updateFreq ():
   try:
     print ('REQUESTING DATA FROM APPLICATION:')
     data = request.get_json ()
-    print ('REQUESTED DATA: ' + data)
+    print (f'REQUESTED DATA: {data}')
 
     key = data ['id_dispositivo']
     frequencia = data ['nova_frequencia']
   except (KeyError, TypeError, ValueError):
-    return util.answer (app, 204, jsonify (success = False))
+    return jsonify (success = False)
 
   if key == 1 and frequencia > 0:
     util.freq1 = frequencia
@@ -160,7 +160,7 @@ def updateFreq ():
     util.freq2 = frequencia
     print ('Downlink scheduled to WiFi device.')
 
-  return util.answer (app, 200, jsonify (success = True))
+  return jsonify (success = True)
 
 # online
 if __name__ == '__main__':
