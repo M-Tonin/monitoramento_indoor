@@ -63,12 +63,17 @@ def upWifi ():
   if (util.freq2 != 0):
     util.callUpdateFreq (2)
     print ('WiFi device frequency has been updated on the database.')
+    check = True
+  else:
+    print (f'CURRENT DEVICE FREQUENCY: {util.freq2}')
+    check = False
 
   dataFreq = {
     'freq': util.freq2
   }
+  if check:
+    util.freq2 = 0
   return jsonify (dataFreq)
-  util.freq2 = 0
 
 # first request upon launching application main page:
 #   id, name, localization, light status from each device
