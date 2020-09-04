@@ -65,7 +65,6 @@ def upWifi ():
     print ('WiFi device frequency has been updated on the database.')
     check = True
   else:
-    print (f'CURRENT DEVICE FREQUENCY: {util.freq2}')
     check = False
 
   dataFreq = {
