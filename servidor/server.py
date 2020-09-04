@@ -46,6 +46,7 @@ cursor = util.mysqlConn.cursor ()
 print ('Listening...')
 
 # uplink received from wifi device
+# ps: it's important to reset util.freq2 variable after send
 @app.route ('/upWifi')
 def upWifi ():
   try:
@@ -66,7 +67,6 @@ def upWifi ():
   dataFreq = {
     'freq': util.freq2
   }
-
   return jsonify (dataFreq)
   util.freq2 = 0
 
@@ -145,11 +145,8 @@ def frequency ():
 def updateFreq ():
   try:
     data = request.get_json ()
-    print (f'RECEIVED DATA FROM THE APPLICATION: {data}')
-
     key = data ['id_dispositivo']
     frequencia = data ['nova_frequencia']
-    print (frequencia)
   except (KeyError, TypeError, ValueError):
     return jsonify (success = False)
 
