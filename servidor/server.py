@@ -66,9 +66,9 @@ def upWifi ():
   dataFreq = {
     'freq': util.freq2
   }
-  util.freq2 = 0
 
   return jsonify (dataFreq)
+  util.freq2 = 0
 
 # first request upon launching application main page:
 #   id, name, localization, light status from each device
@@ -144,12 +144,12 @@ def frequency ():
 @app.route ('/updateFreq', methods = ['GET','POST'])
 def updateFreq ():
   try:
-    print ('REQUESTING DATA FROM APPLICATION:')
     data = request.get_json ()
-    print (f'REQUESTED DATA: {data}')
+    print (f'RECEIVED DATA FROM THE APPLICATION: {data}')
 
     key = data ['id_dispositivo']
     frequencia = data ['nova_frequencia']
+    print (frequencia)
   except (KeyError, TypeError, ValueError):
     return jsonify (success = False)
 
