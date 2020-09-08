@@ -45,14 +45,15 @@ cursor = util.mysqlConn.cursor ()
 # setup is done; entering flask routine section
 print ('Listening...')
 
-# uplink received from wifi device
+# uplink received from wifi device with temperature and lighting values
+# ps: it's important to reset util.freq2 variable after send
 @app.route ('/upWifi')
 def upWifi ():
   try:
     temp = float (request.args.get ('temp')) / 10
     lux = int (request.args.get ('lux'))
   except (KeyError, TypeError, ValueError):
-    return util.answer (app, 204, jsonify (success = False))
+    return jsonify (success = False)
 
   print ('Uplink received from: WiFi.')
   print (f'PAYLOAD: {str (lux)} Lux, {str (temp)} °C.\n\n')
@@ -62,13 +63,28 @@ def upWifi ():
   if (util.freq2 != 0):
     util.callUpdateFreq (2)
     print ('WiFi device frequency has been updated on the database.')
+    check = True
+  else:
+    check = False
 
   dataFreq = {
     'freq': util.freq2
   }
-  util.freq2 = 0
-
+  if check:
+    util.freq2 = 0
   return jsonify (dataFreq)
+
+# uplink received from wifi device with light status event info
+@app.route ('/lightStatus')
+def lightStatus ():
+  try:
+    lightstatus = int (request.args.get ('lightstatus'))
+  except (KeyError, TypeError, ValueError):
+    return jsonify (success = False)
+
+  # INSERT BD CONTROL LOGIC HERE
+
+  return jsonify (success = True)
 
 # first request upon launching application main page:
 #   id, name, localization, light status from each device
@@ -97,7 +113,7 @@ def devices ():
     return util.answer (app, 200, resp)
   except:
     print (f'Error while trying to gather information from all devices.')
-    return util.answer (app, 404, jsonify (success = False))
+    return jsonify (success = False)
 
 # all temperature readings from last 24h
 @app.route ('/temperatures', methods = ['GET',"POST"])
@@ -105,7 +121,7 @@ def temperatures ():
   try:
     data = request.get_json ()
   except (KeyError, TypeError, ValueError):
-    return util.answer (app, 204, jsonify (success = False))
+    return jsonify (success = False)
 
   try:
     resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_ALL_OCS, 
@@ -121,7 +137,7 @@ def temperatures ():
   except:
     d = data ['id_dispositivo']
     print (f'Error: device {d} not found.')
-    return util.answer (app, 404, jsonify (success = False))
+    return jsonify (success = False)
 
 # device frequency request
 @app.route ('/frequency')
@@ -129,7 +145,7 @@ def frequency ():
   try:
     data = request.get_json ()
   except (KeyError, TypeError, ValueError):
-    return util.answer (app, 204, jsonify (success = False))
+    return jsonify (success = False)
 
   try:
     resp1 = sql.dbSelectFromQuery (cursor, sql.SEL_FREQ_DISP, 
@@ -138,17 +154,17 @@ def frequency ():
     dict1 = json.dumps (dt.getFreqDispDict (resp1), indent = 4, separators = (", "," : "))
     return util.answer (app, 200, dict1)
   except:
-    return util.answer (app, 204, jsonify (success = False))
+    return jsonify (success = False)
 
 # change device frequency
-@app.route ('/updateFreq', methods = ['GET',"POST"])
+@app.route ('/updateFreq', methods = ['GET','POST'])
 def updateFreq ():
   try:
     data = request.get_json ()
     key = data ['id_dispositivo']
     frequencia = data ['nova_frequencia']
   except (KeyError, TypeError, ValueError):
-    return util.answer (app, 204, jsonify (success = False))
+    return jsonify (success = False)
 
   if key == 1 and frequencia > 0:
     util.freq1 = frequencia
@@ -157,7 +173,7 @@ def updateFreq ():
     util.freq2 = frequencia
     print ('Downlink scheduled to WiFi device.')
 
-  return util.answer (app, 200, jsonify (success = True))
+  return jsonify (success = True)
 
 # online
 if __name__ == '__main__':
