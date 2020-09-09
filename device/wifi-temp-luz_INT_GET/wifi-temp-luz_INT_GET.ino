@@ -31,6 +31,8 @@ uint8_t tempHIGH;
 uint8_t tempLOW;
 // Valor de bytes mais e menos significativos respectivamente
 uint16_t lux;
+int lux_status;
+int lux_previous = 1;
 uint8_t luxHIGH;
 uint8_t luxLOW;
 // Contantes auxiliáres
@@ -74,6 +76,27 @@ void loop()
       
       }
 
+      lux = ReadLux();
+
+    if (lux >=20){
+      lux_status = 1;
+     // Serial.println("Acesa");
+    } else {
+      lux_status = 0;
+    //  Serial.println("Apagada");
+    }
+
+    Serial.println(lux_status); 
+    if(lux_status =! lux_previous)
+    {
+      Serial.println("Mudou");   
+     // Serial.println(lux_status); 
+     // Serial.println(lux_previous);     
+      lux_previous = lux_status;
+      //Serial.println(lux_previous); 
+    }
+    
+
     
     if (millis() - MillisAnterior >= intervalo) {
     
@@ -93,11 +116,13 @@ void loop()
     
 //////////////////////////////////////////////////////////////////////////////
     temp = ReadTemp();
-    lux = ReadLux();
+    
     /*luxHIGH = ShiftingBytesH(lux);
     luxLOW = ShiftingBytesL(lux);
     tempHIGH = ShiftingBytesH(temp);
     tempLOW = ShiftingBytesL(temp);
+
+    
 
 
     // Alocando dos dados no vetor de dados a ser enviado
@@ -119,7 +144,7 @@ void loop()
 
      
     Serial.print("Temperatura: "); Serial.println(http_temp);
-    Serial.print("Lux: "); Serial.println(http_lux);
+    Serial.println("Lux: "); Serial.println(http_lux);
     Serial.println("Connected to server successful!");
    
     String url = "/upWifi?";
