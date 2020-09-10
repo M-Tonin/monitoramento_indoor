@@ -48,10 +48,8 @@ def callUpdateFreq (key):
   
   if key == 1:
     f = freq1
-    freq1 = 0
   else:
     f = freq2
-    freq2 = 0
 
   try:
     sql.dbExecQuery (mysqlConn.cursor (), sql.UPD_FREQ_DISP.format (f), sql.WH_DISP.format (key))
