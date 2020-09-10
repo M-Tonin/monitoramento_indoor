@@ -31,6 +31,8 @@ SEL_FREQ_DISP = "SELECT vl_frequencia_captura FROM tb_dispositivo"
 INS_OC = """INSERT INTO tb_ocorrencia(id_dispositivo,vl_temperatura,vl_luminosidade,dt_ocorrencia,
                 hr_ocorrencia,st_luminosidade)
 VALUES({0},{1},{2},CURRENT_DATE,CURRENT_TIME,{3})"""
+INS_LIGHT_STATUS = """INSERT INTO tb_estado_dispositivo(id_dispositivo,dt_ocorrencia,hr_ocorrencia,
+                   st_estado) VALUES({0},CURRENT_DATE,CURRENT_TIME,{1})"""
             
 #Comandos sql update
 UPD_FREQ_DISP = """UPDATE tb_dispositivo

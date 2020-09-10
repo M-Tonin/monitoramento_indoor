@@ -82,9 +82,13 @@ def lightStatus ():
   except (KeyError, TypeError, ValueError):
     return jsonify (success = False)
 
-  # INSERT BD CONTROL LOGIC HERE
-
-  return jsonify (success = True)
+  try:
+    sql.dbExecQuery (cursor, sql.INS_LIGHT_STATUS.format (2, lightstatus), '')
+    util.mysqlConn.commit ()
+    return jsonify (success = True)
+  except:
+    print ('Error: failed to insert Light Status onto database.')
+    return jsonify (success = False)
 
 # first request upon launching application main page:
 #   id, name, localization, light status from each device
