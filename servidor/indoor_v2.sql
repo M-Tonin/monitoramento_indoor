@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `tb_ocorrencia` (
   `hr_ocorrencia` TIME NOT NULL COMMENT 'Hora da captura dos dados',
   `st_luminosidade` CHAR(1) NOT NULL COMMENT '\'Indica se o dispositivo está ligado ou desligado\'',
   PRIMARY KEY (`id_ocorrencia`),
-  UNIQUE INDEX `idtb_luminosidade_UNIQUE` (`id_ocorrencia` ASC),
+  UNIQUE INDEX `id_ocorrencia_UNIQUE` (`id_ocorrencia` ASC),
   INDEX `fk_tb_ocorrencia_tb_dispositivo_idx` (`id_dispositivo` ASC),
   CONSTRAINT `fk_tb_ocorrencia_tb_dispositivo`
     FOREIGN KEY (`id_dispositivo`)
@@ -69,11 +69,13 @@ ENGINE = InnoDB;
 -- Table `tb_estado_dispositivo`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `tb_estado_dispositivo` (
-  `id_ocorrencia` INT NOT NULL COMMENT 'Identificador da ocorrência.',
+  `id_estado_dispositivo` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Identificador da ocorrência.',
   `id_dispositivo` INT UNSIGNED NOT NULL COMMENT 'Identificador do dispositivo.',
   `dt_ocorrencia` DATE NOT NULL COMMENT 'Data em que ocorreu a mudança de estado.',
   `hr_ocorrencia` TIME NOT NULL COMMENT 'Hora em que ocorreu a mudança de estado.',
   `st_estado` CHAR(1) NOT NULL COMMENT 'Estado de luminosidade podendo ser \'1 - Aceso\' ou \'0 - Apagado\'',
+  PRIMARY KEY (`id_estado_dispositivo`),
+  UNIQUE INDEX `id_estado_dispositivo_UNIQUE` (`id_estado_dispositivo`),
   INDEX `fk_tb_estado_dispositivo_tb_dispositivo1_idx` (`id_dispositivo` ASC),
   CONSTRAINT `fk_tb_estado_dispositivo_tb_dispositivo1`
     FOREIGN KEY (`id_dispositivo`)
