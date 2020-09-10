@@ -31,8 +31,9 @@ uint8_t tempHIGH;
 uint8_t tempLOW;
 // Valor de bytes mais e menos significativos respectivamente
 uint16_t lux;
+unsigned long int luxmedium=0;
 int lux_status;
-int lux_previous = 1;
+int lux_previous = 0;
 uint8_t luxHIGH;
 uint8_t luxLOW;
 // Contantes auxiliáres
@@ -75,29 +76,109 @@ void loop()
       intervalo = 1000;
       
       }
-
+    
+    for (int i=0;i<5;i++){
       lux = ReadLux();
-
-    if (lux >=20){
+      luxmedium+=lux;
+    }
+    if (luxmedium/5 >= 25){
       lux_status = 1;
      // Serial.println("Acesa");
-    } else {
+    } else if (luxmedium/5 <= 15){
       lux_status = 0;
     //  Serial.println("Apagada");
     }
+    luxmedium=0;
 
-    Serial.println(lux_status); 
-    if(lux_status =! lux_previous)
+    char lux_bin[1];
+
+    itoa(lux_status, lux_bin, 10);
+    
+    String url =  "/lightStatus?lightstatus=";
+    url += lux_bin;
+    
+    //Serial.println(lux_status); 
+    if(lux_status == 0 && lux_previous==1)
     {
-      Serial.println("Mudou");   
-     // Serial.println(lux_status); 
-     // Serial.println(lux_previous);     
+      Serial.println("Apagou");   
+      Serial.println(lux); 
+      Serial.println(lux_status);     
       lux_previous = lux_status;
-      //Serial.println(lux_previous); 
-    }
-    
 
+      if (!client.connect(host, port)) {
+ 
+        Serial.println("Connection to host failed");
+ 
+        delay(1000);
+       
+
+        while(!client.connect(host, port))
+        {
+           Serial.println("Connection to still host failed");
+            delay(1000);
+        }
+         
+    } 
+      client.print(String("GET ") + url + " HTTP/1.1\r\n" +
+                 "Host: " + host + "\r\n" +
+                 "Connection: close\r\n\r\n");    Serial.println("Verificando downlink... ");
+    //Serial.print("Intervalo antes de ler: "); Serial.println(intervalo);
+    while (client.connected() || client.available())
+{
+    if (client.available())
+      {
+    s_data = client.readStringUntil('\n');
+    //Serial.print("Intervalo depois de ler: "); Serial.println(intervalo);
+   // Serial.println("Leu se existe downlink");
+    Serial.println(s_data);
+
+      }
+}
+
+      
+      
+    }
+    else if (lux_status == 1 && lux_previous==0){
+      Serial.println("Acendeu");
+      Serial.println(lux);   
+      Serial.println(lux_status);   
+      lux_previous = lux_status;
+
+      if (!client.connect(host, port)) {
+ 
+        Serial.println("Connection to host failed");
+ 
+        delay(1000);
+
+         while(!client.connect(host, port))
+        {
+           Serial.println("Connection to still host failed");
+            delay(1000);
+        }
+    } 
     
+       
+        
+      client.print(String("GET ") + url + " HTTP/1.1\r\n" +
+                 "Host: " + host + "\r\n" +
+                 "Connection: close\r\n\r\n");
+
+          Serial.println("Verificando downlink... ");
+    //Serial.print("Intervalo antes de ler: "); Serial.println(intervalo);
+    while (client.connected() || client.available())
+{
+    if (client.available())
+      {
+    s_data = client.readStringUntil('\n');
+    //Serial.print("Intervalo depois de ler: "); Serial.println(intervalo);
+   // Serial.println("Leu se existe downlink");
+    Serial.println(s_data);
+
+      }
+}
+    }  
+
+   
     if (millis() - MillisAnterior >= intervalo) {
     
     MillisAnterior = millis();
@@ -146,8 +227,9 @@ void loop()
     Serial.print("Temperatura: "); Serial.println(http_temp);
     Serial.println("Lux: "); Serial.println(http_lux);
     Serial.println("Connected to server successful!");
-   
-    String url = "/upWifi?";
+
+    url = "";
+    url = "/upWifi?";
     url += "temp=";
     url += http_temp;
     url += "&&lux=";
