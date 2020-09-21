@@ -53,7 +53,7 @@ def callUpdateFreq (key):
 
   try:
     sql.dbExecQuery (mysqlConn.cursor (), sql.UPD_FREQ_DISP.format (f), sql.WH_DISP.format (key))
-    mysqlConn.commit ()
+    #mysqlConn.commit ()
   except:
     print (f'Error: failed to update frequency from device {key} into database.')
 
