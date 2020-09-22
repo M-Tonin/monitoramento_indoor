@@ -5,6 +5,7 @@ import server_utils as util
 import ttn
 from flask import Flask, jsonify, request
 from flask_json import FlaskJSON, JsonError, json_response, as_json
+from contextlib import contextmanager
 #from flask_ngrok import run_with_ngrok
 
 # flask namespace
@@ -184,32 +185,31 @@ def updateFreq ():
   return jsonify (success = True)
 
 @contextmanager
-	def transactionManagement (self):
-		try:
-			util.mysqlConn = sql.dbConnect (host, user, password, database)
-      cursor =util.mysqlConn.cursor()
-      yield cursor
-		except:
-			raise
-		finally:
-			util.mysqlConn.commit()
-      cursor.close()
-      util.mysqlConn.close()
-      print('Conexão com o banco finalizada.')
+def transactionManagement (self):
+  try:
+    util.mysqlConn = sql.dbConnect (host, user, password, database)
+    cursor =util.mysqlConn.cursor()
+    yield cursor
+  except:
+    raise
+  finally:
+    util.mysqlConn.commit()
+    cursor.close()
+    util.mysqlConn.close()
+    print('Conexão com o banco finalizada.')
 
 @contextmanager
-	def queryManagement (self):
-		try:
-			util.mysqlConn = sql.dbConnect (host, user, password, database)
-      cursor = util.mysqlConn.cursor()
-      yield cursor
-		except:
-			raise
-		finally:
-      cursor.close()
-      util.mysqlConn.close()
-
-      print('Conexão com o banco finalizada.')
+def queryManagement (self):
+  try:
+    util.mysqlConn = sql.dbConnect (host, user, password, database)
+    cursor = util.mysqlConn.cursor()
+    yield cursor
+  except:
+    raise
+  finally:
+    cursor.close()
+    util.mysqlConn.close()
+    print('Conexão com o banco finalizada.')
 
 
 
