@@ -17,7 +17,7 @@ const char *password = "#ibti@2019";
 //const uint16_t port = 12345;
 //const char * host = "192.168.2.196";
 const uint16_t port = 5000;
-const char * host = "192.168.2.211";
+const char * host = "192.168.1.70";
 
 static uint8_t mydata[TAMbytes];
 //int mydata[TAMbytes];
